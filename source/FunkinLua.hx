@@ -1,10 +1,8 @@
-
-#if MODS_ALLOWED
+#if LUA_ALLOWED
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
 import llua.Convert;
-#end
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
@@ -47,7 +45,7 @@ class FunkinLua {
 	public static var Function_Stop:Dynamic = 1;
 	public static var Function_Continue:Dynamic = 0;
 
-	#if MODS_ALLOWED
+	#if LUA_ALLOWED
 	public var lua:State = null;
 	#end
 	public var camTarget:FlxCamera;
@@ -1987,3 +1985,4 @@ class DebugLuaText extends FlxText
 	}
 	
 }
+#end
