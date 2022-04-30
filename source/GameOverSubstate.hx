@@ -30,9 +30,6 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	override function create()
 	{
-		instance = this;
-		PlayState.instance.callOnLuas('onGameOverStart', []);
-
 		super.create();
 	}
 
@@ -76,8 +73,6 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		super.update(elapsed);
 
-		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
-
 		if (controls.ACCEPT)
 		{
 			endBullshit();
@@ -108,7 +103,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		{
 			Conductor.songPosition = FlxG.sound.music.time;
 		}
-		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
 	}
 
 	override function beatHit()
