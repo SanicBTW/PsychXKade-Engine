@@ -1,8 +1,10 @@
 package;
 
 import lime.utils.Assets;
+#if sys
 import sys.io.File;
 import sys.FileSystem;
+#end
 
 using StringTools;
 
