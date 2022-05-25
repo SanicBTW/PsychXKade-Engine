@@ -1,5 +1,6 @@
 package;
 
+import psych.ClientPrefs;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -57,10 +58,6 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		#if polymod
-		polymod.Polymod.init({modRoot: "mods", dirs: ['introMod']});
-		#end
-
 		@:privateAccess
 		{
 			trace("Loaded " + openfl.Assets.getLibrary("default").assetsLoaded + " assets (DEFAULT)");
@@ -79,16 +76,20 @@ class TitleState extends MusicBeatState
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
-		// DEBUG BULLSHIT
+		FlxG.game.focusLostFramerate = 60;
+		FlxG.sound.muteKeys = muteKeys;
+		FlxG.sound.volumeDownKeys = volumeDownKeys;
+		FlxG.sound.volumeUpKeys = volumeUpKeys;
+		FlxG.keys.preventDefaultKeys = [TAB];
+
+		PlayerSettings.init();
 
 		super.create();
 
-		// NGio.noLogin(APIStuff.API);
-
 		FlxG.save.bind('funkin', 'ninjamuffin99');
-
-		KadeEngineData.initSave();
-
+		
+		ClientPrefs.loadPrefs();
+		
 		Highscore.load();
 
 		if (FlxG.save.data.weekCompleted != null)

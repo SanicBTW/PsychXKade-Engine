@@ -1,5 +1,6 @@
 package;
 
+import psych.ClientPrefs;
 import flixel.graphics.FlxGraphic;
 import webm.WebmPlayer;
 import openfl.display.BlendMode;
@@ -89,14 +90,14 @@ class Main extends Sprite
 		#if !mobile
 		fpsCounter = new FPS(10, 3, 0xFFFFFF);
 		addChild(fpsCounter);
-		toggleFPS(FlxG.save.data.fps);
+		toggleFPS(ClientPrefs.showFPS);
 
 		#end
 	}
 
 	var game:FlxGame;
 
-	var fpsCounter:FPS;
+	public static var fpsCounter:FPS;
 
 	public function toggleFPS(fpsEnabled:Bool):Void {
 		fpsCounter.visible = fpsEnabled;
