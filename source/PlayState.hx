@@ -2747,30 +2747,11 @@ class PlayState extends MusicBeatState
 							}
 							else
 							{
-								if (loadRep && daNote.isSustainNote)
-								{
-									// im tired and lazy this sucks I know i'm dumb
-									if (findByTime(daNote.strumTime) != null)
-										totalNotesHit += 1;
-									else
-									{
-										if (!daNote.ignoreNote) {
-										health -= 0.075;
-										vocals.volume = 0;
-										if (theFunne){
-											noteMiss(daNote.noteData, daNote);
-									    }
-									    }
-									}
-								}
-								else
-								{
-									if (!daNote.ignoreNote) {
+								if (!daNote.ignoreNote) {
 									health -= 0.075;
 									vocals.volume = 0;
 									if (theFunne){
 										noteMiss(daNote.noteData, daNote);
-								    }
 								    }
 								}
 							}
@@ -3395,9 +3376,6 @@ class PlayState extends MusicBeatState
 			var msTiming = HelperFunctions.truncateFloat(noteDiff, 3);
 			if(PlayStateChangeables.botPlay && !loadRep) msTiming = 0;		
 			
-			if (loadRep)
-				msTiming = HelperFunctions.truncateFloat(findByTime(daNote.strumTime)[3], 3);
-
 			if (currentTimingShown != null)
 				remove(currentTimingShown);
 
@@ -3694,7 +3672,10 @@ class PlayState extends MusicBeatState
 							for (shit in 0...pressArray.length)
 								{ // if a direction is hit that shouldn't be
 									if (pressArray[shit] && !directionList.contains(shit))
-										noteMiss(shit, null);
+										for(haha in possibleNotes)
+										{
+											noteMiss(haha.noteData, haha);
+										}
 								}
 						}
 						for (coolNote in possibleNotes)
@@ -3709,11 +3690,14 @@ class PlayState extends MusicBeatState
 						}
 					}
 					else if (!FlxG.save.data.ghost)
-						{
-							for (shit in 0...pressArray.length)
-								if (pressArray[shit])
-									noteMiss(shit, null);
-						}
+					{
+						for (shit in 0...pressArray.length)
+							if (pressArray[shit])
+								for(haha in possibleNotes)
+								{
+									noteMiss(haha.noteData, haha);
+								}
+					}
 
 					if(dontCheck && possibleNotes.length > 0 && FlxG.save.data.ghost && !PlayStateChangeables.botPlay)
 					{
@@ -3738,20 +3722,8 @@ class PlayState extends MusicBeatState
 						if(PlayStateChangeables.botPlay && daNote.canBeHit && daNote.mustPress ||
 						PlayStateChangeables.botPlay && daNote.tooLate && daNote.mustPress)
 						{
-							if(loadRep)
-							{
-								//trace('ReplayNote ' + tmpRepNote.strumtime + ' | ' + tmpRepNote.direction);
-								var n = findByTime(daNote.strumTime);
-								trace(n);
-								if(n != null)
-								{
-									goodNoteHit(daNote);
-									boyfriend.holdTimer = daNote.sustainLength;
-								}
-							}else {
-								goodNoteHit(daNote);
-								boyfriend.holdTimer = daNote.sustainLength;
-							}
+							goodNoteHit(daNote);
+							boyfriend.holdTimer = daNote.sustainLength;
 						}
 					}
 				});
@@ -3779,17 +3751,6 @@ class PlayState extends MusicBeatState
 						spr.centerOffsets();
 				});
 			}
-
-			public function findByTime(time:Float):Array<Dynamic>
-				{
-					for (i in rep.replay.songNotes)
-					{
-						//trace('checking ' + Math.round(i[0]) + ' against ' + Math.round(time));
-						if (i[0] == time)
-							return i;
-					}
-					return null;
-				}
 
 			public var fuckingVolume:Float = 1;
 			public var useVideo = false;
@@ -3886,15 +3847,6 @@ class PlayState extends MusicBeatState
 			}
 			combo = 0;
 			misses++;
-
-			if (daNote != null)
-			{
-				if (!loadRep)
-					saveNotes.push([daNote.strumTime,0,direction,166 * Math.floor((PlayState.rep.replay.sf / 60) * 1000) / 166]);
-			}
-			else
-				if (!loadRep)
-					saveNotes.push([Conductor.songPosition,0,direction,166 * Math.floor((PlayState.rep.replay.sf / 60) * 1000) / 166]);
 
 			//var noteDiff:Float = Math.abs(daNote.strumTime - Conductor.songPosition);
 			//var wife:Float = EtternaFunctions.wife3(noteDiff, FlxG.save.data.etternaMode ? 1 : 1.7);
@@ -4030,9 +3982,6 @@ class PlayState extends MusicBeatState
 					mashing = 0;
 
 				var noteDiff:Float = -(note.strumTime - Conductor.songPosition);
-
-				if(loadRep)
-					noteDiff = findByTime(note.strumTime)[3];
 
 				note.rating = Ratings.CalculateRating(noteDiff);
 

@@ -60,11 +60,6 @@ class TitleState extends MusicBeatState
 		#if polymod
 		polymod.Polymod.init({modRoot: "mods", dirs: ['introMod']});
 		#end
-		
-		#if sys
-		if (!sys.FileSystem.exists(Sys.getCwd() + "/assets/replays"))
-			sys.FileSystem.createDirectory(Sys.getCwd() + "/assets/replays");
-		#end
 
 		@:privateAccess
 		{
@@ -89,11 +84,6 @@ class TitleState extends MusicBeatState
 		super.create();
 
 		// NGio.noLogin(APIStuff.API);
-
-		#if ng
-		var ng:NGio = new NGio(APIStuff.API, APIStuff.EncKey);
-		trace('NEWGROUNDS LOL');
-		#end
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
@@ -316,6 +306,9 @@ class TitleState extends MusicBeatState
 
 			MainMenuState.firstStart = true;
 
+			FlxG.switchState(new MainMenuState());
+
+			/*
 			new FlxTimer().start(2, function(tmr:FlxTimer)
 			{
 				// Get current version of Kade Engine
@@ -347,7 +340,7 @@ class TitleState extends MusicBeatState
 				
 				http.request();
 			});
-			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
+			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);*/
 		}
 
 		if (pressedEnter && !skippedIntro && initialized)
