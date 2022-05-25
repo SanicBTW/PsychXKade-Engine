@@ -3672,10 +3672,7 @@ class PlayState extends MusicBeatState
 							for (shit in 0...pressArray.length)
 								{ // if a direction is hit that shouldn't be
 									if (pressArray[shit] && !directionList.contains(shit))
-										for(haha in possibleNotes)
-										{
-											noteMiss(haha.noteData, haha);
-										}
+										noteMiss(shit, null);
 								}
 						}
 						for (coolNote in possibleNotes)
@@ -3693,10 +3690,7 @@ class PlayState extends MusicBeatState
 					{
 						for (shit in 0...pressArray.length)
 							if (pressArray[shit])
-								for(haha in possibleNotes)
-								{
-									noteMiss(haha.noteData, haha);
-								}
+								noteMiss(shit, null);
 					}
 
 					if(dontCheck && possibleNotes.length > 0 && FlxG.save.data.ghost && !PlayStateChangeables.botPlay)
@@ -3861,16 +3855,21 @@ class PlayState extends MusicBeatState
 			// FlxG.log.add('played imss note');
 
 			var char:Character = boyfriend;
-			if(daNote.gfNote) {
+			if(daNote != null && daNote.gfNote) {
 				char = gf;
 			}
 	
 			if(char.hasMissAnimations)
 			{
 				var daAlt = '';
-				if(daNote.noteType == 'Alt Animation') daAlt = '-alt';
+				if(daNote != null && daNote.noteType == 'Alt Animation') daAlt = '-alt';
 	
-				var animToPlay:String = singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daAlt;
+				var animToPlay:String = singAnimations[Std.int(Math.abs(direction))] + 'miss' + daAlt;
+
+				if(daNote != null)
+				{
+					animToPlay = singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daAlt;
+				}
 				char.playAnim(animToPlay, true);
 			}
 
