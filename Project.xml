@@ -111,13 +111,14 @@
 	<haxelib name="hscript" />
 
 	<haxelib name="actuate" />
-	<haxelib name="extension-webm"/> <!-- Make sure to use https://github.com/KadeDev/extension-webm/ -->
+	<!--i have to check if this really works o rs mth-->
+	<haxelib name="extension-webm" if="VIDEOS_ALLOWED"/> <!-- Make sure to use https://github.com/KadeDev/extension-webm/ -->
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
 	<!--<haxelib name="newgrounds"/>-->
 	<haxelib name="faxe" if='switch'/>
-	<haxelib name="polymod"/>
+	<!--<haxelib name="polymod"/>-->
 	<haxelib name="discord_rpc" if="windows"/>
 	<!--<haxelib name="linc_luajit" if="windows"/>-->
 
