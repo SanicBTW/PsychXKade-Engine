@@ -1,5 +1,6 @@
 package;
 
+import psych.ClientPrefs;
 import openfl.Lib;
 import Controls.Control;
 import flixel.FlxG;
@@ -208,9 +209,6 @@ class PauseSubState extends MusicBeatSubstate
 						PlayState.instance.remove(PlayState.instance.videoSprite);
 						PlayState.instance.removedVideo = true;
 					}
-					/*
-					if (FlxG.save.data.fpsCap > 290)
-						(cast (Lib.current.getChildAt(0), Main)).setFPSCap(290);*/
 					
 					FlxG.switchState(new MainMenuState());
 			}

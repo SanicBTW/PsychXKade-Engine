@@ -1,5 +1,6 @@
 package;
 
+import psych.ClientPrefs;
 import flixel.addons.display.FlxNestedSprite;
 import haxe.display.FsPath;
 import flixel.graphics.FlxGraphic;
@@ -285,10 +286,6 @@ class PlayState extends MusicBeatState
 
 		instance = this;
 		
-		/*
-		if (FlxG.save.data.fpsCap > 290)
-			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(800);*/
-		
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
@@ -300,10 +297,6 @@ class PlayState extends MusicBeatState
 			goods = 0;
 		}
 		misses = 0;
-
-		repPresses = 0;
-		repReleases = 0;
-
 
 		PlayStateChangeables.useDownscroll = FlxG.save.data.downscroll;
 		PlayStateChangeables.safeFrames = FlxG.save.data.frames;
@@ -872,7 +865,6 @@ class PlayState extends MusicBeatState
 			camPos.y += gf.getGraphicMidpoint().y + gf.cameraPosition[1];
 		}
 
-
 		add(gfGroup);
 
 		// Shitty layering but whatev it works LOL
@@ -881,16 +873,6 @@ class PlayState extends MusicBeatState
 
 		add(dadGroup);
 		add(boyfriendGroup);
-		if (loadRep)
-		{
-			FlxG.watch.addQuick('rep rpesses',repPresses);
-			FlxG.watch.addQuick('rep releases',repReleases);
-			// FlxG.watch.addQuick('Queued',inputsQueued);
-
-			PlayStateChangeables.useDownscroll = rep.replay.isDownscroll;
-			PlayStateChangeables.safeFrames = rep.replay.sf;
-			PlayStateChangeables.botPlay = true;
-		}
 
 		trace('uh ' + PlayStateChangeables.safeFrames);
 
@@ -975,7 +957,7 @@ class PlayState extends MusicBeatState
 
 		trace('generated');
 
-		// add(strumLine);
+		add(strumLine);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 
@@ -1051,23 +1033,12 @@ class PlayState extends MusicBeatState
 
 		originalX = scoreTxt.x;
 
-
 		scoreTxt.scrollFactor.set();
 		
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 
 		add(scoreTxt);
 
-		replayTxt = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 75, healthBarBG.y + (PlayStateChangeables.useDownscroll ? 100 : -100), 0, "REPLAY", 20);
-		replayTxt.setFormat(Paths.font("vcr.ttf"), 42, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
-		replayTxt.borderSize = 4;
-		replayTxt.borderQuality = 2;
-		replayTxt.scrollFactor.set();
-		if (loadRep)
-		{
-			add(replayTxt);
-		}
-		// Literally copy-paste of the above, fu
 		botPlayState = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 75, healthBarBG.y + (PlayStateChangeables.useDownscroll ? 100 : -100), 0, "BOTPLAY", 20);
 		botPlayState.setFormat(Paths.font("vcr.ttf"), 42, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		botPlayState.scrollFactor.set();
@@ -1079,7 +1050,8 @@ class PlayState extends MusicBeatState
 		iconP1.y = healthBar.y - 75;
 		add(iconP1);
 
-		iconP2 = new HealthIcon(dad.healthIcon, false);
+		iconP2 = new HealthIcon(boyfriend.healthIcon, false);
+		//iconP2 = new HealthIcon(dad.healthIcon, false);
 		iconP2.y = healthBar.y - 75;
 		add(iconP2);
 
@@ -3124,10 +3096,6 @@ class PlayState extends MusicBeatState
 		PlayStateChangeables.botPlay = false;
 		PlayStateChangeables.scrollSpeed = 1;
 		PlayStateChangeables.useDownscroll = false;
-
-		/*
-		if (FlxG.save.data.fpsCap > 290)
-			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(290);*/
 
 		canPause = false;
 		FlxG.sound.music.volume = 0;
