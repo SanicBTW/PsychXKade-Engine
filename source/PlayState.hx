@@ -3506,18 +3506,18 @@ class PlayState extends MusicBeatState
 		private function keyShit():Void // I've invested in emma stocks
 			{
 				// control arrays, order L D R U
-				var holdArray:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
+				var holdArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
 				var pressArray:Array<Bool> = [
-					controls.LEFT_P,
-					controls.DOWN_P,
-					controls.UP_P,
-					controls.RIGHT_P
+					controls.NOTE_LEFT_P,
+					controls.NOTE_DOWN_P,
+					controls.NOTE_UP_P,
+					controls.NOTE_RIGHT_P
 				];
 				var releaseArray:Array<Bool> = [
-					controls.LEFT_R,
-					controls.DOWN_R,
-					controls.UP_R,
-					controls.RIGHT_R
+					controls.NOTE_LEFT_R,
+					controls.NOTE_DOWN_R,
+					controls.NOTE_UP_R,
+					controls.NOTE_RIGHT_R
 				];
 		 
 				// Prevent player input if botplay is on

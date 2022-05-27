@@ -1,5 +1,6 @@
 package;
 
+import psych.options.OptionsState;
 import flixel.addons.transition.FlxTransitionableState;
 import psych.ClientPrefs;
 import flixel.input.keyboard.FlxKey;
@@ -143,12 +144,6 @@ class MainMenuState extends MusicBeatState
 
 		// NG.core.calls.event.logEvent('swag').send();
 
-
-		if (FlxG.save.data.dfjk)
-			controls.setKeyboardScheme(KeyboardScheme.Solo, true);
-		else
-			controls.setKeyboardScheme(KeyboardScheme.Duo(true), true);
-
 		changeItem();
 
 		super.create();
@@ -165,13 +160,13 @@ class MainMenuState extends MusicBeatState
 
 		if (!selectedSomethin)
 		{
-			if (controls.UP_P)
+			if (controls.UI_UP_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(-1);
 			}
 
-			if (controls.DOWN_P)
+			if (controls.UI_DOWN_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(1);
@@ -193,7 +188,7 @@ class MainMenuState extends MusicBeatState
 					selectedSomethin = true;
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 					
-					if (FlxG.save.data.flashing)
+					if (ClientPrefs.flashing)
 						FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
 					menuItems.forEach(function(spr:FlxSprite)
@@ -210,7 +205,7 @@ class MainMenuState extends MusicBeatState
 						}
 						else
 						{
-							if (FlxG.save.data.flashing)
+							if (ClientPrefs.flashing)
 							{
 								FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
 								{
@@ -246,14 +241,10 @@ class MainMenuState extends MusicBeatState
 		{
 			case 'story mode':
 				FlxG.switchState(new StoryMenuState());
-				trace("Story Menu Selected");
 			case 'freeplay':
 				FlxG.switchState(new FreeplayState());
-
-				trace("Freeplay Menu Selected");
-
 			case 'options':
-				
+				MusicBeatState.switchState(new OptionsState());			
 		}
 	}
 

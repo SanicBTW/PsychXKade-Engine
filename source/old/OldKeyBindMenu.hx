@@ -188,7 +188,7 @@ class KeyBindMenu extends FlxSubState
 
         FlxG.save.flush();
 
-        PlayerSettings.player1.controls.loadKeyBinds();
+        //PlayerSettings.player1.controls.loadKeyBinds();
 
     }
 

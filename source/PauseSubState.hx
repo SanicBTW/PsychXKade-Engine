@@ -106,10 +106,10 @@ class PauseSubState extends MusicBeatSubstate
 		if (PlayState.instance.useVideo)
 			menuItems.remove('Resume');
 
-		var upP = controls.UP_P;
-		var downP = controls.DOWN_P;
-		var leftP = controls.LEFT_P;
-		var rightP = controls.RIGHT_P;
+		var upP = controls.UI_UP_P;
+		var downP = controls.UI_DOWN_P;
+		var leftP = controls.UI_LEFT_P;
+		var rightP = controls.UI_RIGHT_P;
 		var accepted = controls.ACCEPT;
 		var oldOffset:Float = 0;
 

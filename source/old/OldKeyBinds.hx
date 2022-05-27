@@ -19,7 +19,7 @@ class KeyBinds
         FlxG.save.data.leftBind = "A";
         FlxG.save.data.rightBind = "D";
         FlxG.save.data.killBind = "R";
-        PlayerSettings.player1.controls.loadKeyBinds();
+        //PlayerSettings.player1.controls.
 
 	}
 

@@ -1,5 +1,6 @@
 package;
 
+import psych.ColorSwap;
 import psych.ClientPrefs;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -84,6 +85,7 @@ class TitleState extends MusicBeatState
 
 		PlayerSettings.init();
 
+		swagShader = new ColorSwap();
 		super.create();
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
@@ -114,10 +116,13 @@ class TitleState extends MusicBeatState
 	var danceLeft:Bool = false;
 	var titleText:FlxSprite;
 
+	var swagShader:ColorSwap = null;
+
 	function startIntro()
 	{
 		if (!initialized)
 		{	
+			/*
 			var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
 			diamond.persist = true;
 			diamond.destroyOnNoUse = false;
@@ -126,9 +131,8 @@ class TitleState extends MusicBeatState
 				new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
 			FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1),
 				{asset: diamond, width: 32, height: 32}, new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
-
 			transIn = FlxTransitionableState.defaultTransIn;
-			transOut = FlxTransitionableState.defaultTransOut;
+			transOut = FlxTransitionableState.defaultTransOut;			*/
 
 			// HAD TO MODIFY SOME BACKEND SHIT
 			// IF THIS PR IS HERE IF ITS ACCEPTED UR GOOD TO GO
@@ -138,9 +142,12 @@ class TitleState extends MusicBeatState
 			// music.loadStream(Paths.music('freakyMenu'));
 			// FlxG.sound.list.add(music);
 			// music.play();
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+			if(FlxG.sound.music == null)
+			{
+				FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 
-			FlxG.sound.music.fadeIn(4, 0, 0.7);
+				FlxG.sound.music.fadeIn(4, 0, 0.7);
+			}
 		}
 
 		Conductor.changeBPM(102);
@@ -167,6 +174,7 @@ class TitleState extends MusicBeatState
 		gfDance.animation.addByIndices('danceRight', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
 		gfDance.antialiasing = ClientPrefs.globalAntialiasing;
 		add(gfDance);
+		gfDance.shader = swagShader.shader;
 		add(logoBl);
 
 		titleText = new FlxSprite(100, FlxG.height * 0.8);
@@ -191,8 +199,6 @@ class TitleState extends MusicBeatState
 
 		credTextShit = new Alphabet(0, 0, "ninjamuffin99\nPhantomArcade\nkawaisprite\nevilsk8er", true);
 		credTextShit.screenCenter();
-
-		// credTextShit.alignment = CENTER;
 
 		credTextShit.visible = false;
 
@@ -271,15 +277,6 @@ class TitleState extends MusicBeatState
 
 		if (pressedEnter && !transitioning && skippedIntro)
 		{
-			#if !switch
-			/*
-			NGio.unlockMedal(60960);
-
-			// If it's Friday according to da clock
-			if (Date.now().getDay() == 5)
-				NGio.unlockMedal(61034);*/
-			#end
-
 			if (ClientPrefs.flashing)
 				titleText.animation.play('press');
 
@@ -291,43 +288,22 @@ class TitleState extends MusicBeatState
 
 			MainMenuState.firstStart = true;
 
-			new FlxTimer().start(2, function(tmr:FlxTimer)
+			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
-				/*
-				// Get current version of Kade Engine
-				
-				var http = new haxe.Http("https://raw.githubusercontent.com/KadeDev/Kade-Engine/master/version.downloadMe");
-				var returnedData:Array<String> = [];
-				
-				http.onData = function (data:String)
-				{
-					returnedData[0] = data.substring(0, data.indexOf(';'));
-					returnedData[1] = data.substring(data.indexOf('-'), data.length);
-				  	// if (!MainMenuState.kadeEngineVer.contains(returnedData[0].trim()) && !OutdatedSubState.leftState && MainMenuState.nightly == "")
-					// {
-					// 	trace('outdated lmao! ' + returnedData[0] + ' != ' + MainMenuState.kadeEngineVer);
-					// 	OutdatedSubState.needVer = returnedData[0];
-					// 	OutdatedSubState.currChanges = returnedData[1];
-					// 	FlxG.switchState(new OutdatedSubState());
-					// }
-					// else
-					// {
-						FlxG.switchState(new MainMenuState());
-					// }
-				}
-				
-				http.onError = function (error) {
-				  trace('error: $error');
-				}
-				
-				http.request();*/
-				FlxG.switchState(new MainMenuState()); 
+				FlxG.switchState(new MainMenuState());
+				closedState = true;
 			});
 		}
 
 		if (pressedEnter && !skippedIntro && initialized)
 		{
 			skipIntro();
+		}
+
+		if(swagShader != null)
+		{
+			if(controls.UI_LEFT) swagShader.hue -= elapsed * 0.1;
+			if(controls.UI_RIGHT) swagShader.hue += elapsed * 0.1;
 		}
 
 		super.update(elapsed);
@@ -363,77 +339,65 @@ class TitleState extends MusicBeatState
 		}
 	}
 
+	private static var closedState:Bool = false;
 	override function beatHit()
 	{
 		super.beatHit();
 
-		logoBl.animation.play('bump');
-		danceLeft = !danceLeft;
+		if(logoBl != null) 
+			logoBl.animation.play('bump');
 
-		if (danceLeft)
-			gfDance.animation.play('danceRight');
-		else
-			gfDance.animation.play('danceLeft');
+		if(gfDance != null) {
+			danceLeft = !danceLeft;
 
-		FlxG.log.add(curBeat);
+			if (danceLeft)
+				gfDance.animation.play('danceRight');
+			else
+				gfDance.animation.play('danceLeft');
+		}
 
-		switch (curBeat)
+		if(!closedState)
 		{
-			case 1:
-				createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
-			// credTextShit.visible = true;
-			case 3:
-				addMoreText('present');
-			// credTextShit.text += '\npresent...';
-			// credTextShit.addText();
-			case 4:
-				deleteCoolText();
-			// credTextShit.visible = false;
-			// credTextShit.text = 'In association \nwith';
-			// credTextShit.screenCenter();
-			case 5:
-				if (Main.watermarks)
-					createCoolText(['Kade Engine', 'by']);
-				else
-					createCoolText(['In Partnership', 'with']);
-			case 7:
-				if (Main.watermarks)
-					addMoreText('KadeDeveloper');
-				else
-				{
-					addMoreText('Newgrounds');
-					ngSpr.visible = true;
-				}
-			// credTextShit.text += '\nNewgrounds';
-			case 8:
-				deleteCoolText();
-				ngSpr.visible = false;
-			// credTextShit.visible = false;
-
-			// credTextShit.text = 'Shoutouts Tom Fulp';
-			// credTextShit.screenCenter();
-			case 9:
-				createCoolText([curWacky[0]]);
-			// credTextShit.visible = true;
-			case 11:
-				addMoreText(curWacky[1]);
-			// credTextShit.text += '\nlmao';
-			case 12:
-				deleteCoolText();
-			// credTextShit.visible = false;
-			// credTextShit.text = "Friday";
-			// credTextShit.screenCenter();
-			case 13:
-				addMoreText('Friday');
-			// credTextShit.visible = true;
-			case 14:
-				addMoreText('Night');
-			// credTextShit.text += '\nNight';
-			case 15:
-				addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
-
-			case 16:
-				skipIntro();
+			switch (curBeat)
+			{
+				case 1:
+					createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
+				case 3:
+					addMoreText('present');
+				case 4:
+					deleteCoolText();
+				case 5:
+					if (Main.watermarks)
+						createCoolText(['Kade Engine', 'by']);
+					else
+						createCoolText(['In Partnership', 'with']);
+				case 7:
+					if (Main.watermarks)
+						addMoreText('KadeDeveloper');
+					else
+					{
+						addMoreText('Newgrounds');
+						ngSpr.visible = true;
+					}
+				case 8:
+					deleteCoolText();
+					ngSpr.visible = false;
+				case 9:
+					createCoolText([curWacky[0]]);
+				case 11:
+					addMoreText(curWacky[1]);
+				case 12:
+					deleteCoolText();
+				case 13:
+					addMoreText('Friday');
+				case 14:
+					addMoreText('Night');
+				case 15:
+					addMoreText('Funkin');
+	
+				case 16:
+					skipIntro();
+			}
 		}
 	}
 
