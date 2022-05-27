@@ -87,11 +87,16 @@ class KadeEngineData
 		if (FlxG.save.data.scoreScreen == null)
 			FlxG.save.data.scoreScreen = true;
 
+		//psych options in kade go brrr
+		if(FlxG.save.data.arrowHSV == null)
+			FlxG.save.data.arrowHSV = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+
+		if(FlxG.save.data.globalAntialiasing == null)
+			FlxG.save.data.globalAntialiasing = true;
+
 		Conductor.recalculateTimings();
 		PlayerSettings.player1.controls.loadKeyBinds();
 		KeyBinds.keyCheck();
-
-		Main.watermarks = FlxG.save.data.watermark;
 
 		(cast (Lib.current.getChildAt(0), Main)).setFPSCap(FlxG.save.data.fpsCap);
 	}

@@ -1,5 +1,6 @@
 package psych.openfl.display;
 
+import flixel.FlxG;
 import haxe.Timer;
 import openfl.events.Event;
 import openfl.text.TextField;
@@ -78,7 +79,7 @@ class FPS extends TextField
 
 		var currentCount = times.length;
 		currentFPS = Math.round((currentCount + cacheCount) / 2);
-		if (currentFPS > ClientPrefs.framerate) currentFPS = ClientPrefs.framerate;
+		if (currentFPS > FlxG.save.data.fpsCap) currentFPS = FlxG.save.data.fpsCap;
 
 		if (currentCount != cacheCount /*&& visible*/)
 		{
@@ -91,7 +92,7 @@ class FPS extends TextField
 			#end
 
 			textColor = 0xFFFFFFFF;
-			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.framerate / 2)
+			if (memoryMegas > 3000 || currentFPS <= FlxG.save.data.fpsCap / 2)
 			{
 				textColor = 0xFFFF0000;
 			}
