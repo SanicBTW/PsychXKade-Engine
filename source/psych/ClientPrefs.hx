@@ -14,9 +14,7 @@ class ClientPrefs {
 	public static var globalAntialiasing:Bool = true;
 	public static var noteSplashes:Bool = true;
 	public static var lowQuality:Bool = false;
-
 	public static var framerate:Int = 60;
-
 	public static var cursing:Bool = true;
 	public static var violence:Bool = true;
 	public static var camZooms:Bool = true;
@@ -52,13 +50,17 @@ class ClientPrefs {
 		'botplay' => false,
 		'opponentplay' => false
 	];
-
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];
 	public static var ratingOffset:Int = 0;
 	public static var sickWindow:Int = 45;
 	public static var goodWindow:Int = 90;
 	public static var badWindow:Int = 135;
-	public static var safeFrames:Float = 10;
+	public static var safeFrames:Int = 10;
+
+	//haha kade engine options go brrr
+	public static var fpsRainbow:Bool = false;
+	public static var distractions:Bool = false;
+	public static var accuracyMod:Int = 0;
 
 	//Every key has two binds, add your key bind down here and then add your control on options/ControlsSubState.hx and Controls.hx
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
@@ -114,10 +116,6 @@ class ClientPrefs {
 		FlxG.save.data.noReset = noReset;
 		FlxG.save.data.healthBarAlpha = healthBarAlpha;
 		FlxG.save.data.comboOffset = comboOffset;
-        //no achievements lol
-		//FlxG.save.data.achievementsMap = Achievements.achievementsMap;
-		//FlxG.save.data.henchmenDeath = Achievements.henchmenDeath;
-
 		FlxG.save.data.ratingOffset = ratingOffset;
 		FlxG.save.data.sickWindow = sickWindow;
 		FlxG.save.data.goodWindow = goodWindow;
@@ -127,6 +125,9 @@ class ClientPrefs {
 		FlxG.save.data.controllerMode = controllerMode;
 		FlxG.save.data.hitsoundVolume = hitsoundVolume;
 		FlxG.save.data.pauseMusic = pauseMusic;
+		FlxG.save.data.fpsRainbow = fpsRainbow;
+		FlxG.save.data.distractions = distractions;
+		FlxG.save.data.accuracyMod = accuracyMod;
 	
 		FlxG.save.flush();
 
@@ -172,12 +173,6 @@ class ClientPrefs {
 				FlxG.updateFramerate = framerate;
 			}
 		}
-		/*if(FlxG.save.data.cursing != null) {
-			cursing = FlxG.save.data.cursing;
-		}
-		if(FlxG.save.data.violence != null) {
-			violence = FlxG.save.data.violence;
-		}*/
 		if(FlxG.save.data.camZooms != null) {
 			camZooms = FlxG.save.data.camZooms;
 		}
@@ -240,6 +235,18 @@ class ClientPrefs {
 			{
 				gameplaySettings.set(name, value);
 			}
+		}
+		if(FlxG.save.data.fpsRainbow != null)
+		{
+			fpsRainbow = FlxG.save.data.fpsRainbow;
+		}
+		if(FlxG.save.data.distractions != null)
+		{
+			distractions = FlxG.save.data.distractions;
+		}
+		if(FlxG.save.data.accuracyMod != null)
+		{
+			accuracyMod = FlxG.save.data.accuracyMod;
 		}
 		
 		// flixel automatically saves your volume!
