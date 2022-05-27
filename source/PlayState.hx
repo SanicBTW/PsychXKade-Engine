@@ -1106,13 +1106,6 @@ class PlayState extends MusicBeatState
 		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
 
-		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/' + Paths.formatToSongPath(SONG.song) + '/')];
-
-		foldersToCheck.insert(0, Paths.mods('data/' + Paths.formatToSongPath(SONG.song) + '/'));
-		if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/data/' + Paths.formatToSongPath(SONG.song) + '/'));
-		
 		trace('starting');
 
 		if (isStoryMode)
@@ -1783,7 +1776,7 @@ class PlayState extends MusicBeatState
 
 		var songName:String = Paths.formatToSongPath(SONG.song);
 		var file:String = Paths.json(songName + '/events');
-		if (FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(file)) {
+		if (#if MODS_ALLOWED FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(file) || #end Assets.exists(file)) {
 			var eventsData:Array<Dynamic> = Song.loadFromJson('events', songName).events;
 			for (event in eventsData) //Event Notes
 			{
@@ -3767,7 +3760,7 @@ class PlayState extends MusicBeatState
 				// nada 
 			}
 
-
+			#if desktop
 			public function backgroundVideo(source:String) // for background videos
 				{
 					useVideo = true;
@@ -3821,6 +3814,7 @@ class PlayState extends MusicBeatState
 					else
 						webmHandler.resume();
 				}
+			#end
 
 	function noteMiss(direction:Int = 1, daNote:Note):Void
 	{
