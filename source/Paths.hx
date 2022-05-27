@@ -23,7 +23,7 @@ using StringTools;
 
 class Paths
 {
-	inline public static var SOUND_EXT = "ogg";
+	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
 	inline public static var VIDEO_EXT = "mp4";
 
 	public static function excludeAsset(key:String) {
@@ -191,7 +191,6 @@ class Paths
 
 	static public function sound(key:String, ?library:String):Dynamic
 	{
-		#if MODS_ALLOWED
 		var file:String = modsSounds(key);
 		if(FileSystem.exists(file)) {
 			if(!customSoundsLoaded.exists(file)) {
@@ -199,7 +198,6 @@ class Paths
 			}
 			return customSoundsLoaded.get(file);
 		}
-		#end
 		return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
 	}
 
@@ -210,7 +208,6 @@ class Paths
 
 	inline static public function music(key:String, ?library:String):Dynamic
 	{
-		#if MODS_ALLOWED
 		var file:String = modsMusic(key);
 		if(FileSystem.exists(file)) {
 			if(!customSoundsLoaded.exists(file)) {
@@ -218,42 +215,35 @@ class Paths
 			}
 			return customSoundsLoaded.get(file);
 		}
-		#end
 		return getPath('music/$key.$SOUND_EXT', MUSIC, library);
 	}
 
 	inline static public function voices(song:String):Any
 	{
-		#if MODS_ALLOWED
 		var file:Sound = returnSongFile(modsSongs(song.toLowerCase().replace(' ', '-') + '/Voices'));
 		if(file != null) {
 			return file;
 		}
-		#end
 		return 'songs:assets/songs/${song.toLowerCase().replace(' ', '-')}/Voices.$SOUND_EXT';
 	}
 
 	inline static public function inst(song:String):Any
 	{
-		#if MODS_ALLOWED
 		var file:Sound = returnSongFile(modsSongs(song.toLowerCase().replace(' ', '-') + '/Inst'));
 		if(file != null) {
 			return file;
 		}
-		#end
 		return 'songs:assets/songs/${song.toLowerCase().replace(' ', '-')}/Inst.$SOUND_EXT';
 	}
 
 	inline static private function returnSongFile(file:String):Sound
 	{
-		#if MODS_ALLOWED
 		if(FileSystem.exists(file)) {
 			if(!customSoundsLoaded.exists(file)) {
 				customSoundsLoaded.set(file, Sound.fromFile(file));
 			}
 			return customSoundsLoaded.get(file);
 		}
-		#end
 		return null;
 	}
 
@@ -266,7 +256,6 @@ class Paths
 
 	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
 	{
-		#if MODS_ALLOWED
 		if (!ignoreMods && FileSystem.exists(modFolders(key)))
 			return File.getContent(modFolders(key));
 
@@ -286,30 +275,25 @@ class Paths
 			if (FileSystem.exists(levelPath))
 				return File.getContent(levelPath);
 		}
-		#end
 
 		return Assets.getText(getPath(key, TEXT));
 	}
 
 	inline static public function font(key:String)
 	{
-		#if MODS_ALLOWED
 		var file:String = modsFont(key);
 		if(FileSystem.exists(file)) {
 			return file;
 		}
-		#end
 		return 'assets/fonts/$key';
 	}
 
 
 	inline static public function fileExists(key:String, type:AssetType, ?library:String)
 	{
-		#if MODS_ALLOWED
 		if(FileSystem.exists(mods(currentModDirectory + '/' + key)) || FileSystem.exists(mods(key))) {
 			return true;
 		}
-		#end
 		
 		if(OpenFlAssets.exists(Paths.getPath(key, type))) {
 			return true;
@@ -321,16 +305,11 @@ class Paths
 	{
 		var imageLoaded:FlxGraphic = returnGraphic(key);
 		var xmlExists:Bool = false;
-		#if MODS_ALLOWED
 		if(FileSystem.exists(modsXml(key))) {
-			xmlExists = true;
-		} else 
-		#end
-		if (Assets.exists(xml(key))) {
 			xmlExists = true;
 		}
 
-		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library)), ( xmlExists #if MODS_ALLOWED ? File.getContent(modsXml(key)) : #end file('images/$key.xml', library)));
+		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library)), (xmlExists ? File.getContent(modsXml(key)) : file('images/$key.xml', library)));
 	}
 
 	inline static public function getPackerAtlas(key:String, ?library:String)
@@ -345,7 +324,6 @@ class Paths
 	// completely rewritten asset loading? fuck!
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 	public static function returnGraphic(key:String, ?library:String) {
-		#if MODS_ALLOWED
 		var modKey:String = modsImages(key);
 		if(FileSystem.exists(modKey)) {
 			if(!currentTrackedAssets.exists(modKey)) {
@@ -356,7 +334,6 @@ class Paths
 			localTrackedAssets.push(modKey);
 			return currentTrackedAssets.get(modKey);
 		}
-		#end
 
 		var path = getPath('images/$key.png', IMAGE, library);
 		if (OpenFlAssets.exists(path, IMAGE)) {
@@ -371,7 +348,6 @@ class Paths
 		return null;
 	}
 
-	#if MODS_ALLOWED
 	inline static public function mods(key:String = '') {
 		return 'mods/' + key;
 	}
@@ -435,5 +411,4 @@ class Paths
 		}
 		return list;
 	}
-	#end
 }

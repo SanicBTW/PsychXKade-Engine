@@ -1,6 +1,5 @@
 package;
 
-import psych.ClientPrefs;
 import flixel.addons.effects.FlxSkewedSprite;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -160,7 +159,7 @@ class Note extends FlxSprite
 		// we make sure its downscroll and its a SUSTAIN NOTE (aka a trail, not a note)
 		// and flip it so it doesn't look weird.
 		// THIS DOESN'T FUCKING FLIP THE NOTE, CONTRIBUTERS DON'T JUST COMMENT THIS OUT JESUS
-		if (ClientPrefs.downScroll && sustainNote) 
+		if (FlxG.save.data.downscroll && sustainNote) 
 			flipY = true;
 
 		if (isSustainNote && prevNote != null)
@@ -204,8 +203,8 @@ class Note extends FlxSprite
 				}
 
 
-				if(ClientPrefs.getGameplaySetting('scrollspeed', 1.0) != 1)
-					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * ClientPrefs.getGameplaySetting('scrollspeed', 1.0);
+				if(FlxG.save.data.scrollSpeed != 1)
+					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * FlxG.save.data.scrollSpeed;
 				else
 					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
 				prevNote.updateHitbox();

@@ -1,9 +1,7 @@
 package;
 
-#if sys
 import sys.io.File;
 import sys.FileSystem;
-#end
 import openfl.utils.Assets;
 import haxe.Json;
 import haxe.format.JsonParser;
@@ -62,7 +60,7 @@ class StageData {
 	public static function getStageFile(stage:String):StageFile {
 		var rawJson:String = null;
 		var path:String = Paths.getPreloadPath('stages/' + stage + '.json');
-		#if MODS_ALLOWED
+
 		var modPath:String = Paths.modFolders('stages/' + stage + '.json');
 		if(FileSystem.exists(modPath)) {
 			rawJson = File.getContent(modPath);
@@ -72,7 +70,7 @@ class StageData {
 		else
 		{
 			return null;
-		}#end
+		}
 		return cast Json.parse(rawJson);
 	}
 }

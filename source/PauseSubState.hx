@@ -1,6 +1,5 @@
 package;
 
-import psych.ClientPrefs;
 import openfl.Lib;
 import Controls.Control;
 import flixel.FlxG;
@@ -106,10 +105,10 @@ class PauseSubState extends MusicBeatSubstate
 		if (PlayState.instance.useVideo)
 			menuItems.remove('Resume');
 
-		var upP = controls.UI_UP_P;
-		var downP = controls.UI_DOWN_P;
-		var leftP = controls.UI_LEFT_P;
-		var rightP = controls.UI_RIGHT_P;
+		var upP = controls.UP_P;
+		var downP = controls.DOWN_P;
+		var leftP = controls.LEFT_P;
+		var rightP = controls.RIGHT_P;
 		var accepted = controls.ACCEPT;
 		var oldOffset:Float = 0;
 
@@ -209,6 +208,15 @@ class PauseSubState extends MusicBeatSubstate
 						PlayState.instance.remove(PlayState.instance.videoSprite);
 						PlayState.instance.removedVideo = true;
 					}
+					if(PlayState.loadRep)
+					{
+						FlxG.save.data.botplay = false;
+						FlxG.save.data.scrollSpeed = 1;
+						FlxG.save.data.downscroll = false;
+					}
+					PlayState.loadRep = false;
+					if (FlxG.save.data.fpsCap > 290)
+						(cast (Lib.current.getChildAt(0), Main)).setFPSCap(290);
 					
 					FlxG.switchState(new MainMenuState());
 			}

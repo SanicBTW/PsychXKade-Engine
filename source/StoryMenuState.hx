@@ -203,8 +203,8 @@ class StoryMenuState extends MusicBeatState
 
 		if (!movedBack && !selectedWeek)
 		{
-			var upP = controls.UI_UP_P;
-			var downP = controls.UI_DOWN_P;
+			var upP = controls.UP_P;
+			var downP = controls.DOWN_P;
 			if (upP)
 			{
 				changeWeek(-1);
@@ -217,19 +217,19 @@ class StoryMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 
-			if (controls.UI_RIGHT)
+			if (controls.RIGHT)
 				rightArrow.animation.play('press')
 			else
 				rightArrow.animation.play('idle');
 
-			if (controls.UI_LEFT)
+			if (controls.LEFT)
 				leftArrow.animation.play('press');
 			else
 				leftArrow.animation.play('idle');
 
-			if (controls.UI_RIGHT_P)
+			if (controls.RIGHT_P)
 				changeDifficulty(1);
-			else if (controls.UI_LEFT_P)
+			else if (controls.LEFT_P)
 				changeDifficulty(-1);
 			else if (upP || downP)
 				changeDifficulty();

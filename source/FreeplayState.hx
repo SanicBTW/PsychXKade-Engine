@@ -254,8 +254,8 @@ class FreeplayState extends MusicBeatState
 		comboText.text = combo + '\n';
 		positionHighscore();
 
-		var upP = controls.UI_UP_P;
-		var downP = controls.UI_DOWN_P;
+		var upP = controls.UP_P;
+		var downP = controls.DOWN_P;
 		var accepted = controls.ACCEPT;
 		var space = FlxG.keys.justPressed.SPACE;
 		var ctrl = FlxG.keys.justPressed.CONTROL;
@@ -276,7 +276,7 @@ class FreeplayState extends MusicBeatState
 				holdTime = 0;
 			}
 
-			if(controls.UI_DOWN || controls.UI_UP)
+			if(controls.DOWN || controls.UP)
 			{
 				var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
 				holdTime += elapsed;
@@ -284,15 +284,15 @@ class FreeplayState extends MusicBeatState
 
 				if(holdTime > 0.5 && checkNewHold - checkLastHold > 0)
 				{
-					changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+					changeSelection((checkNewHold - checkLastHold) * (controls.UP ? -shiftMult : shiftMult));
 					changeDiff();
 				}
 			}
 		}
 
-		if (controls.UI_LEFT_P)
+		if (controls.LEFT_P)
 			changeDiff(-1);
-		else if (controls.UI_RIGHT_P)
+		else if (controls.RIGHT_P)
 			changeDiff(1);
 		else if (upP || downP) changeDiff();
 
