@@ -285,8 +285,9 @@ class PlayState extends MusicBeatState
 
 		instance = this;
 		
+		/*
 		if (FlxG.save.data.fpsCap > 290)
-			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(800);
+			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(800);*/
 		
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
@@ -3120,17 +3121,13 @@ class PlayState extends MusicBeatState
 		if (isStoryMode)
 			campaignMisses = misses;
 
-		if (!loadRep)
-			rep.SaveReplay(saveNotes);
-		else
-		{
-			PlayStateChangeables.botPlay = false;
-			PlayStateChangeables.scrollSpeed = 1;
-			PlayStateChangeables.useDownscroll = false;
-		}
+		PlayStateChangeables.botPlay = false;
+		PlayStateChangeables.scrollSpeed = 1;
+		PlayStateChangeables.useDownscroll = false;
 
+		/*
 		if (FlxG.save.data.fpsCap > 290)
-			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(290);
+			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(290);*/
 
 		canPause = false;
 		FlxG.sound.music.volume = 0;
@@ -3158,7 +3155,6 @@ class PlayState extends MusicBeatState
 		{
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			offsetTesting = false;
-			LoadingState.loadAndSwitchState(new OptionsMenu());
 			FlxG.save.data.offset = offsetTest;
 		}
 		else
@@ -3178,13 +3174,8 @@ class PlayState extends MusicBeatState
 
 					FlxG.sound.music.stop();
 					vocals.stop();
-					if (FlxG.save.data.scoreScreen)
-						openSubState(new ResultsScreen());
-					else
-					{
-						FlxG.sound.playMusic(Paths.music('freakyMenu'));
-						FlxG.switchState(new MainMenuState());
-					}
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					FlxG.switchState(new MainMenuState());
 
 					StoryMenuState.weekCompleted.set(WeekData.weeksList[storyWeek], true);
 
@@ -3240,14 +3231,10 @@ class PlayState extends MusicBeatState
 
 				paused = true;
 
-
 				FlxG.sound.music.stop();
 				vocals.stop();
 
-				if (FlxG.save.data.scoreScreen)
-					openSubState(new ResultsScreen());
-				else
-					FlxG.switchState(new PlayState());
+				FlxG.switchState(new FreeplayState());
 			}
 		}
 	}

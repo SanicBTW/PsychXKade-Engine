@@ -1,5 +1,6 @@
 package;
 
+import openfl.display.StageScaleMode;
 import psych.ClientPrefs;
 import flixel.graphics.FlxGraphic;
 #if cpp
@@ -24,7 +25,7 @@ class Main extends Sprite
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
-	var framerate:Int = 120; // How many frames per second the game should run at.
+	var framerate:Int = 60; // How many frames per second the game should run at.
 	var skipSplash:Bool = false; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
@@ -81,23 +82,26 @@ class Main extends Sprite
 		}
 
 		initialState = TitleState;
-		
-		game = new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen);
 
-		// fuck you, persistent caching stays ON during sex
-		FlxGraphic.defaultPersist = true;
-		// the reason for this is we're going to be handling our own cache smartly
-		addChild(game);
+		//yo gotta tweak this one bro
+		ClientPrefs.loadDefaultKeys();
+		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
 		fpsCounter = new FPS(10, 3, 0xFFFFFF);
 		addChild(fpsCounter);
-		toggleFPS(ClientPrefs.showFPS);
+		Lib.current.stage.align = "tl";
+		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		if(fpsCounter != null) {
+			toggleFPS(ClientPrefs.showFPS);
+		}
+		#end
 
+		#if html5
+		FlxG.autoPause = false;
+		FlxG.mouse.visible = false;
 		#end
 	}
-
-	var game:FlxGame;
 
 	public static var fpsCounter:FPS;
 

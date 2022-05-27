@@ -324,10 +324,13 @@ class Paths
 		#if MODS_ALLOWED
 		if(FileSystem.exists(modsXml(key))) {
 			xmlExists = true;
-		}
+		} else 
 		#end
+		if (Assets.exists(xml(key))) {
+			xmlExists = true;
+		}
 
-		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library)), (#if MODS_ALLOWED xmlExists ? File.getContent(modsXml(key)) : #end file('images/$key.xml', library)));
+		return FlxAtlasFrames.fromSparrow((imageLoaded != null ? imageLoaded : image(key, library)), ( xmlExists #if MODS_ALLOWED ? File.getContent(modsXml(key)) : #end file('images/$key.xml', library)));
 	}
 
 	inline static public function getPackerAtlas(key:String, ?library:String)
