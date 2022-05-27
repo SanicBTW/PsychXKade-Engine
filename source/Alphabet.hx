@@ -30,6 +30,7 @@ class Alphabet extends FlxSpriteGroup
 	public var text:String = "";
 
 	var _finalText:String = "";
+	var _curText:String = "";
 	var yMulti:Float = 1;
 
 	// custom shit
@@ -76,12 +77,12 @@ class Alphabet extends FlxSpriteGroup
 	{
 		for (i in 0...lettersArray.length) {
 			var letter = lettersArray[0];
-			letter.destroy();
 			remove(letter);
 			lettersArray.remove(letter);
 		}
 		lettersArray = [];
 		splitWords = [];
+		_curText = "";
 		loopNum = 0;
 		xPos = 0;
 		curRow = 0;
@@ -122,7 +123,7 @@ class Alphabet extends FlxSpriteGroup
 			// {
 			// }
 
-			var spaceChar:Bool = (character == " " || (isBold && character == "_"));
+			var spaceChar:Bool = (character == " " || character == "-" || character == "_");
 			if (spaceChar)
 			{
 				consecutiveSpaces++;
@@ -155,7 +156,8 @@ class Alphabet extends FlxSpriteGroup
 					}
 					else if (isSymbol)
 					{
-						letter.createBoldSymbol(character);
+						if(character != '-')
+							letter.createBoldSymbol(character);
 					}
 					else
 					{
@@ -195,7 +197,7 @@ class Alphabet extends FlxSpriteGroup
 
 	var loopNum:Int = 0;
 	var xPos:Float = 0;
-	public var curRow:Int = 0;
+	var curRow:Int = 0;
 	var dialogueSound:FlxSound = null;
 	var consecutiveSpaces:Int = 0;
 
@@ -208,9 +210,10 @@ class Alphabet extends FlxSpriteGroup
 		// trace(arrayShit);
 
 		if(speed <= 0) {
-			while(!finishedText) { 
+			while(loopNum < splitWords.length) {
 				timerCheck();
 			}
+			finishedText = true;
 			if(dialogueSound != null) dialogueSound.stop();
 			dialogueSound = FlxG.sound.play(Paths.sound('dialogue'));
 		} else {
@@ -222,28 +225,19 @@ class Alphabet extends FlxSpriteGroup
 		}
 	}
 
-	var LONG_TEXT_ADD:Float = -24; //text is over 2 rows long, make it go up a bit
 	public function timerCheck(?tmr:FlxTimer = null) {
-		var autoBreak:Bool = false;
-		if ((loopNum <= splitWords.length - 2 && splitWords[loopNum] == "\\" && splitWords[loopNum+1] == "n") ||
-			((autoBreak = true) && xPos >= FlxG.width * 0.65 && splitWords[loopNum] == ' ' ))
+		if (loopNum <= splitWords.length - 2 && splitWords[loopNum] == "\\" && splitWords[loopNum+1] == "n")
 		{
-			if(autoBreak) {
-				if(tmr != null) tmr.loops -= 1;
-				loopNum += 1;
-			} else {
-				if(tmr != null) tmr.loops -= 2;
-				loopNum += 2;
-			}
+			if(tmr != null) tmr.loops -= 2;
+			loopNum += 2;
 			yMulti += 1;
 			xPosResetted = true;
 			xPos = 0;
 			curRow += 1;
-			if(curRow == 2) y += LONG_TEXT_ADD;
 		}
 
-		if(loopNum <= splitWords.length && splitWords[loopNum] != null) {
-			var spaceChar:Bool = (splitWords[loopNum] == " " || (isBold && splitWords[loopNum] == "_"));
+		if(loopNum <= splitWords.length) {
+			var spaceChar:Bool = (splitWords[loopNum] == " " || splitWords[loopNum] == "-" || splitWords[loopNum] == "_");
 			if (spaceChar)
 			{
 				consecutiveSpaces++;
@@ -319,13 +313,11 @@ class Alphabet extends FlxSpriteGroup
 			}
 		}
 
-		loopNum++;
-		if(loopNum >= splitWords.length) {
-			if(tmr != null) {
-				typeTimer = null;
-				tmr.cancel();
-				tmr.destroy();
-			}
+		loopNum += 1;
+		if(loopNum >= splitWords.length && tmr != null) {
+			typeTimer = null;
+			tmr.cancel();
+			tmr.destroy();
 			finishedText = true;
 		}
 	}
@@ -343,6 +335,13 @@ class Alphabet extends FlxSpriteGroup
 			} else {
 				x = FlxMath.lerp(x, (targetY * 20) + 90 + xAdd, lerpVal);
 			}
+
+			/* para centrar los items del menu pero algunos se muestran incorrectamente
+			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
+
+			screenCenter(X);
+			
+			y = FlxMath.lerp(y, (scaledY * 120) + (FlxG.height * 0.48), 0.30);*/
 		}
 
 		super.update(elapsed);
@@ -378,7 +377,7 @@ class AlphaCharacter extends FlxSprite
 		setGraphicSize(Std.int(width * textSize));
 		updateHitbox();
 		this.textSize = textSize;
-		antialiasing = false;
+		antialiasing = true;
 	}
 
 	public function createBoldLetter(letter:String)
@@ -421,8 +420,8 @@ class AlphaCharacter extends FlxSprite
 			case "'":
 				y -= 20 * textSize;
 			case '-':
-				//x -= 35 - (90 * (1.0 - textSize));
-				y += 20 * textSize;
+				x -= 35 - (90 * (1.0 - textSize));
+				y -= 16 * textSize;
 			case '(':
 				x -= 65 * textSize;
 				y -= 5 * textSize;
@@ -431,10 +430,6 @@ class AlphaCharacter extends FlxSprite
 				x -= 20 / textSize;
 				y -= 5 * textSize;
 				offset.x = 12 * textSize;
-			case '.':
-				y += 45 * textSize;
-				x += 5 * textSize;
-				offset.x += 3 * textSize;
 		}
 	}
 
@@ -496,7 +491,7 @@ class AlphaCharacter extends FlxSprite
 			case "'":
 				y -= 20;
 			case '-':
-				//x -= 35 - (90 * (1.0 - textSize));
+				x -= 35 - (90 * (1.0 - textSize));
 				y -= 16;
 		}
 	}
