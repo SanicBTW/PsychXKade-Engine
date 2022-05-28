@@ -109,6 +109,11 @@ class Main extends Sprite
 		fpsCounter.textColor = color;
 	}
 
+	public function changeFPSFont(font:String)
+	{
+		fpsCounter.defaultTextFormat.font = font;
+	}
+
 	public function setFPSCap(cap:Int)
 	{
 		//what if i use psych engine framerate change style, kinda gets better in html5 tho in my pc input lags, gotta test it in chromebook

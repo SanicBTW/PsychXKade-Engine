@@ -447,7 +447,8 @@ class PreferencesSubstate extends MusicBeatSubstate
         #end
         'Flashing',
         'Botplay', //might make it available in the pause menu?? or in the gameplay modifiers on freeplay state??? help
-        'Score Screen'
+        'Score Screen',
+		'FPS Counter Font'
     ];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
@@ -459,6 +460,18 @@ class PreferencesSubstate extends MusicBeatSubstate
 	private var characterLayer:FlxTypedGroup<Character>;
 	private var showCharacter:Character = null;
 	private var descText:FlxText;
+
+	private var judgementText:FlxText;
+	private var judgementBG:FlxSprite;
+
+	private var theJudgementText:Array<String> = [
+		"Safe Frames: " + Conductor.safeFrames,
+		"ms SIK: " + HelperFunctions.truncateFloat(22 * Conductor.timeScale, 0),
+		"ms GD: " + HelperFunctions.truncateFloat(45 * Conductor.timeScale, 0),
+		"ms BD: " + HelperFunctions.truncateFloat(135 * Conductor.timeScale, 0),
+		"ms SHT: " + HelperFunctions.truncateFloat(155 * Conductor.timeScale, 0),
+		"ms TOTAL: " + HelperFunctions.truncateFloat(Conductor.safeZoneOffset,0) + "ms"
+	];
 
 	public function new()
 	{
@@ -481,8 +494,8 @@ class PreferencesSubstate extends MusicBeatSubstate
 				optionText.screenCenter(X);
 				optionText.forceX = optionText.x;
 			} else {
-				optionText.x += 300;
-				optionText.forceX = 300;
+				optionText.x += 200;
+				optionText.forceX = 200;
 			}
 			optionText.yMult = 90;
 			optionText.targetY = i;
@@ -517,6 +530,20 @@ class PreferencesSubstate extends MusicBeatSubstate
 		descText.scrollFactor.set();
 		descText.borderSize = 2.4;
 		add(descText);
+
+		judgementBG = new FlxSprite(800, 200).makeGraphic(350, 500, FlxColor.BLACK);
+		judgementBG.visible = false;
+		judgementBG.alpha = 0.5;
+
+		judgementText = new FlxText(800, 200, 0, theJudgementText[0] + '\n' + theJudgementText[1] + '\n' + theJudgementText[2] + '\n' + theJudgementText[3] + '\n' + theJudgementText[4] + '\n' + theJudgementText[5] , 32);
+		judgementText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		judgementText.scrollFactor.set();
+		judgementText.borderSize = 2.4;
+		judgementText.visible = false;
+
+		add(judgementBG);
+
+		add(judgementText);
 
 		for (i in 0...options.length) {
 			if(!unselectableCheck(i)) {
@@ -635,7 +662,19 @@ class PreferencesSubstate extends MusicBeatSubstate
                         else if (curIdx < 0) curIdx = 0;
                         FlxG.save.data.accuracyMod = availableOptions[curIdx];
                     case 'FPS Counter Font':
-                        availableOptions = ['_sans', 'vcr'];
+                        availableOptions = ['Sans', 'VCR OSD']; //0, 1
+						var howToSaveIt = "";
+						if(curIdx > 1) curIdx = 1; //limit of the array
+                        else if (curIdx < 0) curIdx = 0;
+						switch(availableOptions[curIdx])
+						{
+							case "Sans":
+								howToSaveIt = "_sans";
+							case "VCR OSD":
+								howToSaveIt = "VCR OSD Mono";
+						}
+						FlxG.save.data.fpsCounterFont = howToSaveIt;
+						(cast (Lib.current.getChildAt(0), Main)).changeFPSFont(FlxG.save.data.fpsCounterFont);
 				}
 				reloadValues();
 
@@ -704,6 +743,8 @@ class PreferencesSubstate extends MusicBeatSubstate
                 daText = "Showcase your charts and mods with autoplay.";
             case 'Score Screen':
                 daText = "Show the score screen after the end of a song";
+			case 'FPS Counter Font':
+				daText = "Changes the FPS Counter Font";
 		}
 		descText.text = daText;
 
@@ -749,6 +790,12 @@ class PreferencesSubstate extends MusicBeatSubstate
 		} else if(showCharacter != null) {
 			characterLayer.clear();
 			showCharacter = null;
+		} else if(options[curSelected] == 'Judgement') {
+			judgementBG.visible = true;
+			judgementText.visible = true;
+		} else if (judgementBG.visible){
+			judgementBG.visible = false;
+			judgementText.visible = false;
 		}
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
@@ -796,13 +843,22 @@ class PreferencesSubstate extends MusicBeatSubstate
 			if(text != null) {
 				var daText:String = '';
 				switch(options[textNumber[i]]) {
-                    case 'Judgement':
                     case 'Framerate':
                         daText = FlxG.save.data.fpsCap + (FlxG.save.data.fpsCap == Application.current.window.displayMode.refreshRate ? "Hz (Refresh Rate)" : "");
                     case 'Scroll Speed':
                         daText = '' + FlxG.save.data.scrollSpeed;
                     case 'Accuracy Display':
-                        daText = '\n' + FlxG.save.data.accuracyMod;
+                        daText = FlxG.save.data.accuracyMod;
+					case 'FPS Counter Font':
+						var howToDisplay = "";
+						switch(FlxG.save.data.fpsCounterFont)
+						{
+							case "_sans":
+								howToDisplay = "Sans";
+							case "VCR OSD Mono":
+								howToDisplay = "VCR OSD";
+						}
+						daText = howToDisplay;
 				}
 				var lastTracker:FlxSprite = text.sprTracker;
 				text.sprTracker = null;
