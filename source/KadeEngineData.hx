@@ -103,6 +103,7 @@ class KadeEngineData
 		if(FlxG.save.data.middleScroll == null)
 			FlxG.save.data.middleScroll = false;
 
+		//taken from my sexy engine 
 		if(FlxG.save.data.classicMiddlescroll == null)
 			FlxG.save.data.classicMiddlescroll = false;
 

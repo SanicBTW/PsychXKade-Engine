@@ -421,7 +421,8 @@ class PreferencesSubstate extends MusicBeatSubstate
     static var options:Array<String> = [
         'GAMEPLAY',
         'Downscroll',
-        //'Middlescroll' gotta see this shit
+        'Middlescroll',
+		'Classic Middlescroll',
         'Ghost Tapping',
         'Judgement',
         #if desktop
@@ -438,8 +439,9 @@ class PreferencesSubstate extends MusicBeatSubstate
         'Accuracy',
         'NPS Display',
         'Song Position',
-        'CPU Strums',
         #end
+        'CPU Strums',
+		'Note Splashes',
         'MISC',
         #if desktop
         'FPS Counter',
@@ -667,6 +669,13 @@ class PreferencesSubstate extends MusicBeatSubstate
                         FlxG.save.data.botplay = !FlxG.save.data.botplay;
                     case 'Score Screen':
                         FlxG.save.data.scoreScreen = !FlxG.save.data.scoreScreen;
+
+					case 'Middlescroll':
+						FlxG.save.data.middleScroll = !FlxG.save.data.middleScroll;
+					case 'Classic Middlescroll':
+						FlxG.save.data.classicMiddlescroll = !FlxG.save.data.classicMiddlescroll;
+					case 'Note Splashes':
+						FlxG.save.data.noteSplashes = !FlxG.save.data.noteSplashes;
 				}
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				reloadValues();
@@ -785,6 +794,14 @@ class PreferencesSubstate extends MusicBeatSubstate
                 daText = "Show the score screen after the end of a song";
 			case 'FPS Counter Font':
 				daText = "Changes the FPS Counter Font\nTo apply changes you have to restart the engine";
+
+			case 'Middlescroll':
+				daText = "If checked, your notes get centered.";
+			case 'Classic Middlescroll':
+				daText = "If checked, hides Opponent's notes and your notes get centered.";
+			case 'Note Splashes':
+				daText = "If unchecked, hitting \"Sick!\" notes won't show particles.";
+
 		}
 		descText.text = daText;
 
@@ -882,6 +899,14 @@ class PreferencesSubstate extends MusicBeatSubstate
                         daValue = FlxG.save.data.botplay;
                     case 'Score Screen':
                         daValue = FlxG.save.data.scoreScreen;
+
+					case 'Middlescroll':
+						daValue = FlxG.save.data.middleScroll;
+					case 'Classic Middlescroll':
+						daValue = FlxG.save.data.classicMiddlescroll;
+					case 'Note Splashes':
+						daValue = FlxG.save.data.noteSplashes;
+	
 				}
 				checkbox.daValue = daValue;
 			}
