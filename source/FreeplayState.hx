@@ -56,6 +56,7 @@ class FreeplayState extends MusicBeatState
 
 	//Gonna do leather engine move
 	public static var songsReady:Bool = false;
+	public static var loadedSongs:Int = 0;
 
 	override function create()
 	{
@@ -66,7 +67,7 @@ class FreeplayState extends MusicBeatState
 		PlayState.isStoryMode = false;
 		WeekData.reloadWeekFiles(false);
 
-		var loadText = 'Loading songs, please wait';
+		var loadText = 'Loading songs, please wait (??/??)';
 		
 		var black = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		var warning = new FlxText(100, 100, 0, loadText, 32);
@@ -88,6 +89,11 @@ class FreeplayState extends MusicBeatState
 					}
 				});
 				songsReady = true;
+			}).onProgress((i1, i2) -> {
+				FlxG.log.add(i1);
+				FlxG.log.add(i2);
+				loadedSongs += 1;
+				warning.text = 'Loading songs, please wait (${loadedSongs} files loaded / 42 remaining)';
 			});
 		}
 		#else

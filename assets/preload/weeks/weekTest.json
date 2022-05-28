@@ -1,0 +1,20 @@
+{
+    "songs": [
+        ["Triple-Trouble", "gf", [0,0,0]]
+    ],
+
+    "weekCharacters": [
+        "bf",
+        "bf",
+        "gf"
+    ],
+    "weekBackground": "stage",
+
+    "storyName": "testin stuff",
+    "weekBefore": "week6",
+    "weekName": "Week Testing",
+    "startUnlocked": true,
+
+    "hideStoryMode": true,
+    "hideFreeplay": false
+}
