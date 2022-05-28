@@ -109,9 +109,20 @@ class Main extends Sprite
 		fpsCounter.textColor = color;
 	}
 
-	public function setFPSCap(cap:Float)
+	public function setFPSCap(cap:Int)
 	{
-		openfl.Lib.current.stage.frameRate = cap;
+		//what if i use psych engine framerate change style
+		if(cap > FlxG.drawFramerate)
+		{
+			FlxG.updateFramerate = cap;
+			FlxG.drawFramerate = cap;
+		}
+		else
+		{
+			FlxG.drawFramerate = cap;
+			FlxG.updateFramerate = cap;
+		}
+		//openfl.Lib.current.stage.frameRate = cap;
 	}
 
 	public function getFPSCap():Float
