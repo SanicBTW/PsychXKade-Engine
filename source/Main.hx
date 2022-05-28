@@ -1,7 +1,9 @@
 package;
 
 import flixel.graphics.FlxGraphic;
+#if cpp
 import webm.WebmPlayer;
+#end
 import openfl.display.BlendMode;
 import openfl.text.TextFormat;
 import openfl.display.Application;

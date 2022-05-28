@@ -3,7 +3,9 @@ package;
 import flixel.addons.display.FlxNestedSprite;
 import haxe.display.FsPath;
 import flixel.graphics.FlxGraphic;
+#if cpp
 import webm.WebmPlayer;
+#end
 import flixel.input.keyboard.FlxKey;
 import haxe.Exception;
 import openfl.geom.Matrix;
@@ -908,16 +910,6 @@ class PlayState extends MusicBeatState
 				}
 		}
 
-		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath('scripts/')];
-
-		foldersToCheck.insert(0, Paths.mods('scripts/'));
-		if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/scripts/'));
-
-		var doPush:Bool = false;
-		var luaFile:String = 'stages/' + curStage + '.lua';
-
 		if(!modchartSprites.exists('blammedLightsBlack')) { //Creates blammed light black fade in case you didn't make your own
 			blammedLightsBlack = new ModchartSprite(FlxG.width * -0.5, FlxG.height * -0.5);
 			blammedLightsBlack.makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
@@ -1114,13 +1106,6 @@ class PlayState extends MusicBeatState
 		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
 
-		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/' + Paths.formatToSongPath(SONG.song) + '/')];
-
-		foldersToCheck.insert(0, Paths.mods('data/' + Paths.formatToSongPath(SONG.song) + '/'));
-		if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/data/' + Paths.formatToSongPath(SONG.song) + '/'));
-		
 		trace('starting');
 
 		if (isStoryMode)
@@ -1791,7 +1776,7 @@ class PlayState extends MusicBeatState
 
 		var songName:String = Paths.formatToSongPath(SONG.song);
 		var file:String = Paths.json(songName + '/events');
-		if (FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(file)) {
+		if (#if MODS_ALLOWED FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(file) || #end Assets.exists(file)) {
 			var eventsData:Array<Dynamic> = Song.loadFromJson('events', songName).events;
 			for (event in eventsData) //Event Notes
 			{
@@ -3749,7 +3734,9 @@ class PlayState extends MusicBeatState
 			public var fuckingVolume:Float = 1;
 			public var useVideo = false;
 
+			#if cpp
 			public static var webmHandler:WebmHandler;
+			#end
 
 			public var playingDathing = false;
 
@@ -3776,59 +3763,59 @@ class PlayState extends MusicBeatState
 			}
 
 
+			#if cpp
 			public function backgroundVideo(source:String) // for background videos
+			{
+				useVideo = true;
+		
+				FlxG.stage.window.onFocusOut.add(focusOut);
+				FlxG.stage.window.onFocusIn.add(focusIn);
+				var ourSource:String = "assets/videos/daWeirdVid/dontDelete.webm";
+				// WebmPlayer.SKIP_STEP_LIMIT = 90;
+				var str1:String = "WEBM SHIT"; 
+				webmHandler = new WebmHandler();
+				webmHandler.source(ourSource);
+				webmHandler.makePlayer();
+				webmHandler.webm.name = str1;
+		
+				GlobalVideo.setWebm(webmHandler);
+				GlobalVideo.get().source(source);
+				GlobalVideo.get().clearPause();
+				if (GlobalVideo.isWebm)
 				{
-					useVideo = true;
-			
-					FlxG.stage.window.onFocusOut.add(focusOut);
-					FlxG.stage.window.onFocusIn.add(focusIn);
-
-					var ourSource:String = "assets/videos/daWeirdVid/dontDelete.webm";
-					// WebmPlayer.SKIP_STEP_LIMIT = 90;
-					var str1:String = "WEBM SHIT"; 
-					webmHandler = new WebmHandler();
-					webmHandler.source(ourSource);
-					webmHandler.makePlayer();
-					webmHandler.webm.name = str1;
-			
-					GlobalVideo.setWebm(webmHandler);
-
-					GlobalVideo.get().source(source);
-					GlobalVideo.get().clearPause();
-					if (GlobalVideo.isWebm)
-					{
-						GlobalVideo.get().updatePlayer();
-					}
-					GlobalVideo.get().show();
-			
-					if (GlobalVideo.isWebm)
-					{
-						GlobalVideo.get().restart();
-					} else {
-						GlobalVideo.get().play();
-					}
-					
-					var data = webmHandler.webm.bitmapData;
-			
-					videoSprite = new FlxSprite(-470,-30).loadGraphic(data);
-			
-					videoSprite.setGraphicSize(Std.int(videoSprite.width * 1.2));
-			
-					remove(gf);
-					remove(boyfriend);
-					remove(dad);
-					add(videoSprite);
-					add(gf);
-					add(boyfriend);
-					add(dad);
-			
-					trace('poggers');
-			
-					if (!songStarted)
-						webmHandler.pause();
-					else
-						webmHandler.resume();
+					GlobalVideo.get().updatePlayer();
 				}
+				GlobalVideo.get().show();
+		
+				if (GlobalVideo.isWebm)
+				{
+					GlobalVideo.get().restart();
+				} else {
+					GlobalVideo.get().play();
+				}
+				
+				var data = webmHandler.webm.bitmapData;
+		
+				videoSprite = new FlxSprite(-470,-30).loadGraphic(data);
+		
+				videoSprite.setGraphicSize(Std.int(videoSprite.width * 1.2));
+		
+				remove(gf);
+				remove(boyfriend);
+				remove(dad);
+				add(videoSprite);
+				add(gf);
+				add(boyfriend);
+				add(dad);
+		
+				trace('poggers');
+		
+				if (!songStarted)
+					webmHandler.pause();
+				else
+					webmHandler.resume();
+			}
+			#end
 
 	function noteMiss(direction:Int = 1, daNote:Note):Void
 	{
