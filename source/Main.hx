@@ -112,7 +112,6 @@ class Main extends Sprite
 	public function setFPSCap(cap:Int)
 	{
 		//what if i use psych engine framerate change style
-		#if html5
 		if(cap > FlxG.drawFramerate)
 		{
 			FlxG.updateFramerate = cap;
@@ -123,9 +122,7 @@ class Main extends Sprite
 			FlxG.drawFramerate = cap;
 			FlxG.updateFramerate = cap;
 		}
-		#else
 		openfl.Lib.current.stage.frameRate = cap;
-		#end
 	}
 
 	public function getFPSCap():Float
