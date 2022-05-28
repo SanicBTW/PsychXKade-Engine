@@ -1,5 +1,6 @@
 package;
 
+import psych.openfl.display.FPS;
 import lime.app.Application;
 import openfl.Lib;
 import psych.ColorSwap;
@@ -434,7 +435,6 @@ class PreferencesSubstate extends MusicBeatSubstate
         'Distractions',
         'Cam Zooms',
         #if desktop
-        'Rainbow FPS',
         'Accuracy',
         'NPS Display',
         'Song Position',
@@ -461,17 +461,21 @@ class PreferencesSubstate extends MusicBeatSubstate
 	private var showCharacter:Character = null;
 	private var descText:FlxText;
 
-	private var judgementText:FlxText;
 	private var judgementBG:FlxSprite;
 
-	private var theJudgementText:Array<String> = [
-		"Safe Frames: " + Conductor.safeFrames,
-		"ms SIK: " + HelperFunctions.truncateFloat(22 * Conductor.timeScale, 0),
-		"ms GD: " + HelperFunctions.truncateFloat(45 * Conductor.timeScale, 0),
-		"ms BD: " + HelperFunctions.truncateFloat(135 * Conductor.timeScale, 0),
-		"ms SHT: " + HelperFunctions.truncateFloat(155 * Conductor.timeScale, 0),
-		"ms TOTAL: " + HelperFunctions.truncateFloat(Conductor.safeZoneOffset,0) + "ms"
-	];
+	private var safeFramesText = "Safe Frames: " + Conductor.safeFrames;
+	private var sickWindowsText = "ms SIK: " + HelperFunctions.truncateFloat(22 * Conductor.timeScale, 0);
+	private var goodWindowsText = "ms GD: " + HelperFunctions.truncateFloat(45 * Conductor.timeScale, 0);
+	private var badWindowsText = "ms BD: " + HelperFunctions.truncateFloat(135 * Conductor.timeScale, 0);
+	private var shitWindowsText = "ms SHT: " + HelperFunctions.truncateFloat(155 * Conductor.timeScale, 0);
+	private var totalMSText = "ms TOTAL: " + HelperFunctions.truncateFloat(Conductor.safeZoneOffset,0) + "ms";
+
+	private var safeFrameshelp:FlxText;
+	private var sickWindowshelp:FlxText;
+	private var goodWindowshelp:FlxText;
+	private var badWindowshelp:FlxText;
+	private var shitWindowshelp:FlxText;
+	private var totalMShelp:FlxText;
 
 	public function new()
 	{
@@ -531,19 +535,55 @@ class PreferencesSubstate extends MusicBeatSubstate
 		descText.borderSize = 2.4;
 		add(descText);
 
-		judgementBG = new FlxSprite(800, 200).makeGraphic(350, 500, FlxColor.BLACK);
+		judgementBG = new FlxSprite(800, 200).makeGraphic(350, 300, FlxColor.BLACK);
 		judgementBG.visible = false;
 		judgementBG.alpha = 0.5;
 
-		judgementText = new FlxText(800, 200, 0, theJudgementText[0] + '\n' + theJudgementText[1] + '\n' + theJudgementText[2] + '\n' + theJudgementText[3] + '\n' + theJudgementText[4] + '\n' + theJudgementText[5] , 32);
-		judgementText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		judgementText.scrollFactor.set();
-		judgementText.borderSize = 2.4;
-		judgementText.visible = false;
+		safeFrameshelp = new FlxText(800, 200, 0, safeFramesText, 32);
+		safeFrameshelp.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		safeFrameshelp.scrollFactor.set();
+		safeFrameshelp.borderSize = 2.4;
+
+		sickWindowshelp = new FlxText(800, 250, 0, sickWindowsText, 32);
+		sickWindowshelp.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		sickWindowshelp.scrollFactor.set();
+		sickWindowshelp.borderSize = 2.4;
+
+		goodWindowshelp = new FlxText(800, 300, 0, goodWindowsText, 32);
+		goodWindowshelp.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		goodWindowshelp.scrollFactor.set();
+		goodWindowshelp.borderSize = 2.4;
+
+		badWindowshelp = new FlxText(800, 350, 0, badWindowsText, 32);
+		badWindowshelp.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		badWindowshelp.scrollFactor.set();
+		badWindowshelp.borderSize = 2.4;
+
+		shitWindowshelp = new FlxText(800, 400, 0, shitWindowsText, 32);
+		shitWindowshelp.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		shitWindowshelp.scrollFactor.set();
+		shitWindowshelp.borderSize = 2.4;
+
+		totalMShelp = new FlxText(800, 450, 0, totalMSText, 32);
+		totalMShelp.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		totalMShelp.scrollFactor.set();
+		totalMShelp.borderSize = 2.4;
+
+		safeFrameshelp.visible = false;
+		sickWindowshelp.visible = false;
+		goodWindowshelp.visible = false;
+		badWindowshelp.visible = false;
+		shitWindowshelp.visible = false;
+		totalMShelp.visible = false;
 
 		add(judgementBG);
 
-		add(judgementText);
+		add(safeFrameshelp);
+		add(sickWindowshelp);
+		add(goodWindowshelp);
+		add(badWindowshelp);
+		add(shitWindowshelp);
+		add(totalMShelp);
 
 		for (i in 0...options.length) {
 			if(!unselectableCheck(i)) {
@@ -610,9 +650,6 @@ class PreferencesSubstate extends MusicBeatSubstate
                         FlxG.save.data.distractions = !FlxG.save.data.distractions;
                     case 'Cam Zooms':
                         FlxG.save.data.camzoom = !FlxG.save.data.camzoom;
-                    case 'Rainbow FPS':
-                        FlxG.save.data.fpsRain = !FlxG.save.data.fpsRain;
-                        (cast (Lib.current.getChildAt(0), Main)).changeFPSColor(FlxColor.WHITE);
                     case 'Accuracy':
                         FlxG.save.data.accuracyDisplay = !FlxG.save.data.accuracyDisplay;
                     case 'NPS Display':
@@ -644,6 +681,11 @@ class PreferencesSubstate extends MusicBeatSubstate
 				if(holdTime > 0.5 || controls.LEFT_P || controls.RIGHT_P)
 				switch(options[curSelected]) {
                     case 'Judgement':
+						FlxG.save.data.frames += add;
+						if(FlxG.save.data.frames < 1) FlxG.save.data.frames = 1;
+						else if(FlxG.save.data.frames > 20) FlxG.save.data.frames = 20;
+						Conductor.safeFrames = FlxG.save.data.frames;
+						Conductor.recalculateTimings();
                     case 'Framerate':
                         var custAdd = controls.LEFT ? -10 : 10;
                         FlxG.save.data.fpsCap += custAdd;
@@ -674,7 +716,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 								howToSaveIt = "VCR OSD Mono";
 						}
 						FlxG.save.data.fpsCounterFont = howToSaveIt;
-						(cast (Lib.current.getChildAt(0), Main)).changeFPSFont(FlxG.save.data.fpsCounterFont);
+						Main.fpsCounter.defaultTextFormat.font = FlxG.save.data.fpsCounterFont;
 				}
 				reloadValues();
 
@@ -718,15 +760,13 @@ class PreferencesSubstate extends MusicBeatSubstate
             case 'Scroll Speed':
                 daText = "Change your scroll speed (1 = Chart dependent)";
             case 'Accuracy Display':
-                daText = "Change how accuracy is calculated. (Accurate = Simple, Complex = Milisecond Based)";
+                daText = "Change how accuracy is calculated.\n(Accurate = Simple, Complex = Milisecond Based)";
             case 'Reset Button':
                 daText = "Toggle pressing R to gameover.";
             case 'Distractions':
                 daText = "Toggle stage distractions that can hinder your gameplay.";
             case 'Cam Zooms':
                 daText = "Toggle the camera zoom in-game.";
-            case 'Rainbow FPS':
-                daText = "Make the FPS Counter Rainbow";
             case 'Accuracy':
                 daText = "Display accuracy information.";
             case 'NPS Display':
@@ -744,7 +784,7 @@ class PreferencesSubstate extends MusicBeatSubstate
             case 'Score Screen':
                 daText = "Show the score screen after the end of a song";
 			case 'FPS Counter Font':
-				daText = "Changes the FPS Counter Font";
+				daText = "Changes the FPS Counter Font\nTo apply changes you have to restart the engine";
 		}
 		descText.text = daText;
 
@@ -792,10 +832,20 @@ class PreferencesSubstate extends MusicBeatSubstate
 			showCharacter = null;
 		} else if(options[curSelected] == 'Judgement') {
 			judgementBG.visible = true;
-			judgementText.visible = true;
+			safeFrameshelp.visible = true;
+			sickWindowshelp.visible = true;
+			goodWindowshelp.visible = true;
+			badWindowshelp.visible = true;
+			shitWindowshelp.visible = true;
+			totalMShelp.visible = true;
 		} else if (judgementBG.visible){
 			judgementBG.visible = false;
-			judgementText.visible = false;
+			safeFrameshelp.visible = false;
+			sickWindowshelp.visible = false;
+			goodWindowshelp.visible = false;
+			badWindowshelp.visible = false;
+			shitWindowshelp.visible = false;
+			totalMShelp.visible = false;
 		}
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
@@ -816,8 +866,6 @@ class PreferencesSubstate extends MusicBeatSubstate
                         daValue = FlxG.save.data.distractions;
                     case 'Cam Zooms':
                         daValue = FlxG.save.data.camzoom;
-                    case 'Rainbow FPS':
-                        daValue = FlxG.save.data.fpsRain;
                     case 'Accuracy':
                         daValue = FlxG.save.data.accuracyDisplay;
                     case 'NPS Display':
@@ -843,6 +891,20 @@ class PreferencesSubstate extends MusicBeatSubstate
 			if(text != null) {
 				var daText:String = '';
 				switch(options[textNumber[i]]) {
+					case 'Judgement':
+						safeFramesText = "Safe Frames: " + Conductor.safeFrames;
+						sickWindowsText = "ms SIK: " + HelperFunctions.truncateFloat(22 * Conductor.timeScale, 0);
+						goodWindowsText = "ms GD: " + HelperFunctions.truncateFloat(45 * Conductor.timeScale, 0);
+						badWindowsText  = "ms BD: " + HelperFunctions.truncateFloat(135 * Conductor.timeScale, 0);
+						shitWindowsText = "ms SHT: " + HelperFunctions.truncateFloat(155 * Conductor.timeScale, 0);
+						totalMSText = "ms TOTAL: " + HelperFunctions.truncateFloat(Conductor.safeZoneOffset,0) + "ms";
+
+						safeFrameshelp.text = safeFramesText;
+						sickWindowshelp.text = sickWindowsText;
+						goodWindowshelp.text = goodWindowsText;
+						badWindowshelp.text = badWindowsText;
+						shitWindowshelp.text = shitWindowsText;
+						totalMShelp.text = totalMSText;
                     case 'Framerate':
                         daText = FlxG.save.data.fpsCap + (FlxG.save.data.fpsCap == Application.current.window.displayMode.refreshRate ? "Hz (Refresh Rate)" : "");
                     case 'Scroll Speed':

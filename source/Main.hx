@@ -98,20 +98,10 @@ class Main extends Sprite
 
 	var game:FlxGame;
 
-	var fpsCounter:FPS;
+	public static var fpsCounter:FPS;
 
 	public function toggleFPS(fpsEnabled:Bool):Void {
 		fpsCounter.visible = fpsEnabled;
-	}
-
-	public function changeFPSColor(color:FlxColor)
-	{
-		fpsCounter.textColor = color;
-	}
-
-	public function changeFPSFont(font:String)
-	{
-		fpsCounter.defaultTextFormat.font = font;
 	}
 
 	public function setFPSCap(cap:Int)
