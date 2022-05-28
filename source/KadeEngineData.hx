@@ -52,7 +52,7 @@ class KadeEngineData
 			FlxG.save.data.frames = 10;
 
 		if (FlxG.save.data.accuracyMod == null)
-			FlxG.save.data.accuracyMod = 1;
+			FlxG.save.data.accuracyMod = 'Accurate';
 
 		if (FlxG.save.data.watermark == null)
 			FlxG.save.data.watermark = true;
