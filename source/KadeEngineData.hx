@@ -97,6 +97,12 @@ class KadeEngineData
 		if(FlxG.save.data.lowQuality == null)
 			FlxG.save.data.lowQuality = false;
 
+		if(FlxG.save.data.noteSplashes == null)
+			FlxG.save.data.noteSplashes = true;
+
+		if(FlxG.save.data.middleScroll == null)
+			FlxG.save.data.middleScroll = false;
+
 		//custom options tho
 		if(FlxG.save.data.fpsCounterFont == null)
 			FlxG.save.data.fpsCounterFont = "_sans";

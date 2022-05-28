@@ -1,4 +1,4 @@
-package;
+package old;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
