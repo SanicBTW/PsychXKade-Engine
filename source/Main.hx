@@ -111,7 +111,7 @@ class Main extends Sprite
 
 	public function setFPSCap(cap:Int)
 	{
-		//what if i use psych engine framerate change style
+		//what if i use psych engine framerate change style, kinda gets better in html5 tho in my pc input lags, gotta test it in chromebook
 		if(cap > FlxG.drawFramerate)
 		{
 			FlxG.updateFramerate = cap;

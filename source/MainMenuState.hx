@@ -1,5 +1,9 @@
 package;
 
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.TransitionData;
+import flixel.graphics.FlxGraphic;
+import flixel.addons.transition.FlxTransitionableState;
 import Controls.KeyboardScheme;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -13,6 +17,8 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 
 #if windows
 import Discord.DiscordClient;
@@ -154,11 +160,6 @@ class MainMenuState extends MusicBeatState
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(1);
-			}
-
-			if (controls.BACK)
-			{
-				FlxG.switchState(new TitleState());
 			}
 
 			if (controls.ACCEPT)
