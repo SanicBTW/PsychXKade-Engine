@@ -2305,12 +2305,12 @@ class PlayState extends MusicBeatState
 					removedVideo = true;
 				}
 
-			FlxG.switchState(new AnimationDebug(SONG.player2));
+			MusicBeatState.switchState(new AnimationDebug(SONG.player2));
 		}
 
 		if (FlxG.keys.justPressed.ZERO)
 		{
-			FlxG.switchState(new AnimationDebug(SONG.player1));
+			MusicBeatState.switchState(new AnimationDebug(SONG.player1));
 		}
 
 		#end
@@ -3183,7 +3183,7 @@ class PlayState extends MusicBeatState
 					else
 					{
 						FlxG.sound.playMusic(Paths.music('freakyMenu'));
-						FlxG.switchState(new MainMenuState());
+						MusicBeatState.switchState(new MainMenuState());
 					}
 
 					StoryMenuState.weekCompleted.set(WeekData.weeksList[storyWeek], true);
@@ -3247,7 +3247,7 @@ class PlayState extends MusicBeatState
 				if (FlxG.save.data.scoreScreen)
 					openSubState(new ResultsScreen());
 				else
-					FlxG.switchState(new PlayState());
+					MusicBeatState.switchState(new PlayState());
 			}
 		}
 	}

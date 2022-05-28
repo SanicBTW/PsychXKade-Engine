@@ -92,7 +92,7 @@ class PsychOptionsState extends MusicBeatState
     
             if (controls.BACK) {
                 FlxG.sound.play(Paths.sound('cancelMenu'));
-                FlxG.switchState(new MainMenuState());
+                MusicBeatState.switchState(new MainMenuState());
             }
     
             if (controls.ACCEPT) {
