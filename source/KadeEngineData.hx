@@ -37,18 +37,10 @@ class KadeEngineData
 			FlxG.save.data.fpsRain = false;
 
 		if (FlxG.save.data.fpsCap == null)
-			#if !html5
-			FlxG.save.data.fpsCap = 120;
-			#else
 			FlxG.save.data.fpsCap = 60;
-			#end
 
 		if (FlxG.save.data.fpsCap > 285 || FlxG.save.data.fpsCap < 60)
-			#if !html5
-			FlxG.save.data.fpsCap = 120;
-			#else
 			FlxG.save.data.fpsCap = 60;
-			#end
 		
 		if (FlxG.save.data.scrollSpeed == null)
 			FlxG.save.data.scrollSpeed = 1;
