@@ -1,5 +1,7 @@
 package;
 
+import flixel.util.FlxTimer;
+import flixel.tweens.FlxEase;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -52,6 +54,9 @@ class FreeplayState extends MusicBeatState
 	var intendedColor:Int;
 	var colorTween:FlxTween;
 
+	//Gonna do leather engine move
+	public static var songsReady:Bool = false;
+
 	override function create()
 	{
 		Paths.clearStoredMemory();
@@ -61,6 +66,34 @@ class FreeplayState extends MusicBeatState
 		PlayState.isStoryMode = false;
 		WeekData.reloadWeekFiles(false);
 
+		var loadText = 'Loading songs, please wait';
+		
+		var black = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		var warning = new FlxText(100, 100, 0, loadText, 32);
+
+		#if NO_PRELOAD_ALL
+		if(!songsReady)
+		{
+			Assets.loadLibrary("songs").onComplete(function (_) {
+				FlxTween.tween(black, {alpha: 0}, 0.5, {
+					ease: FlxEase.quadOut,
+					onComplete: function(twn:FlxTween)
+					{
+						remove(black);
+						black.kill();
+						black.destroy();
+						remove(warning);
+						warning.kill();
+						warning.destroy();
+					}
+				});
+				songsReady = true;
+			});
+		}
+		#else
+		songsReady = true;
+		#end
+		
 		#if desktop
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
@@ -158,6 +191,23 @@ class FreeplayState extends MusicBeatState
 		
 		changeSelection();
 		changeDiff();
+
+		if(!songsReady)
+		{
+			add(black);
+			add(warning);
+		} else {
+			remove(black);
+			black.kill();
+			black.destroy();
+			remove(warning);
+			warning.kill();
+			warning.destroy();
+
+			songsReady = false;
+
+			new FlxTimer().start(1, function(_){songsReady = true;});
+		}
 
 		var swag:Alphabet = new Alphabet(1, 0, "swag");
 
