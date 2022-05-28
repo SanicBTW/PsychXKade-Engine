@@ -103,6 +103,9 @@ class KadeEngineData
 		if(FlxG.save.data.middleScroll == null)
 			FlxG.save.data.middleScroll = false;
 
+		if(FlxG.save.data.classicMiddlescroll == null)
+			FlxG.save.data.classicMiddlescroll = false;
+
 		//custom options tho
 		if(FlxG.save.data.fpsCounterFont == null)
 			FlxG.save.data.fpsCounterFont = "_sans";

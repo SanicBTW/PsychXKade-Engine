@@ -1,5 +1,6 @@
 package;
 
+import psych.StrumNote;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -300,8 +301,7 @@ class ChartingState extends MusicBeatState
 		
 		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		for (i in 0...8){
-			var note:StrumNote = new StrumNote(GRID_SIZE * (i+1), strumLine.y, i % 4, 0);
-			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
+			var note:StrumNote = new StrumNote(GRID_SIZE * (i+1), strumLine.y, i % 4, 0);			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
 			note.updateHitbox();
 			note.playAnim('static', true);
 			strumLineNotes.add(note);
