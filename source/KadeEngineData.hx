@@ -102,6 +102,9 @@ class KadeEngineData
 		if(FlxG.save.data.globalAntialiasing == null)
 			FlxG.save.data.globalAntialiasing = true;
 
+		if(FlxG.save.data.lowQuality == null)
+			FlxG.save.data.lowQuality = false;
+
 		//custom options tho
 		if(FlxG.save.data.fpsCounterFont == null)
 			FlxG.save.data.fpsCounterFont = "_sans";
