@@ -94,6 +94,10 @@ class KadeEngineData
 		if(FlxG.save.data.globalAntialiasing == null)
 			FlxG.save.data.globalAntialiasing = true;
 
+		//custom options tho
+		if(FlxG.save.data.fpsCounterFont == null)
+			FlxG.save.data.fpsCounterFont = "_sans";
+
 		Conductor.recalculateTimings();
 		PlayerSettings.player1.controls.loadKeyBinds();
 		KeyBinds.keyCheck();

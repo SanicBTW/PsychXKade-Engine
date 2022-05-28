@@ -414,7 +414,8 @@ class PreferencesSubstate extends MusicBeatSubstate
         'Judgement',
         'Framerate',
         'Scroll Speed',
-        'Accuracy Display'
+        'Accuracy Display',
+        'FPS Counter Font'
     ];
     static var options:Array<String> = [
         'GAMEPLAY',
@@ -576,8 +577,6 @@ class PreferencesSubstate extends MusicBeatSubstate
                         FlxG.save.data.downscroll = !FlxG.save.data.downscroll;
                     case 'Ghost Tapping':
                         FlxG.save.data.ghost = !FlxG.save.data.ghost;
-                    case 'Accuracy Display':
-                        FlxG.save.data.accuracyDisplay = !FlxG.save.data.accuracyDisplay;
                     case 'Reset Button':
                         FlxG.save.data.resetButton = !FlxG.save.data.resetButton;
                     case 'Distractions':
@@ -587,7 +586,8 @@ class PreferencesSubstate extends MusicBeatSubstate
                     case 'Rainbow FPS':
                         FlxG.save.data.fpsRain = !FlxG.save.data.fpsRain;
                         (cast (Lib.current.getChildAt(0), Main)).changeFPSColor(FlxColor.WHITE);
-                    //case 'Accuracy':
+                    case 'Accuracy':
+                        FlxG.save.data.accuracyDisplay = !FlxG.save.data.accuracyDisplay;
                     case 'NPS Display':
                         FlxG.save.data.npsDisplay = !FlxG.save.data.npsDisplay;
                     case 'Song Position':
@@ -625,9 +625,8 @@ class PreferencesSubstate extends MusicBeatSubstate
                         (cast (Lib.current.getChildAt(0), Main)).setFPSCap(FlxG.save.data.fpsCap);
                     case 'Scroll Speed':
                         var custAdd = controls.LEFT ? -0.1 : 0.1;
-                        var faster:Float = 0;
-                        if(holdTime > 1.5) faster = 1;
-                        FlxG.save.data.scrollSpeed += custAdd * faster;
+                        if(holdTime > 1.5) custAdd = controls.LEFT ? -0.5 : 0.5;
+                        FlxG.save.data.scrollSpeed += custAdd;
                         if(FlxG.save.data.scrollSpeed < 1) FlxG.save.data.scrollSpeed = 1;
                         else if(FlxG.save.data.scrollSpeed > 4) FlxG.save.data.scrollSpeed = 4;
                     case 'Accuracy Display':
@@ -635,6 +634,8 @@ class PreferencesSubstate extends MusicBeatSubstate
                         if(curIdx > 1) curIdx = 1;
                         else if (curIdx < 0) curIdx = 0;
                         FlxG.save.data.accuracyMod = availableOptions[curIdx];
+                    case 'FPS Counter Font':
+                        availableOptions = ['_sans', 'vcr'];
 				}
 				reloadValues();
 
