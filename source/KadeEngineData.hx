@@ -107,6 +107,15 @@ class KadeEngineData
 		if(FlxG.save.data.classicMiddlescroll == null)
 			FlxG.save.data.classicMiddlescroll = false;
 
+		if(FlxG.save.data.timeBarType == null)
+			FlxG.save.data.timeBarType = 'Time Left';
+
+		if(FlxG.save.data.hideHud == null)
+			FlxG.save.data.hideHud = false;
+
+		if(FlxG.save.data.healthBarAlpha == null)
+			FlxG.save.data.healthBarAlpha = 1.0;
+
 		//custom options tho
 		if(FlxG.save.data.fpsCounterFont == null)
 			FlxG.save.data.fpsCounterFont = "_sans";

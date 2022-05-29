@@ -3,7 +3,7 @@ package;
 import psych.openfl.display.FPS;
 import lime.app.Application;
 import openfl.Lib;
-import psych.ColorSwap;
+import ColorSwap;
 import psych.CheckBoxThingie;
 #if desktop
 import Discord.DiscordClient;

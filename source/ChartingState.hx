@@ -1,6 +1,6 @@
 package;
 
-import psych.StrumNote;
+import StrumNote;
 #if desktop
 import Discord.DiscordClient;
 #end
