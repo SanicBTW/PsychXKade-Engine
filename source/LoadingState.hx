@@ -26,7 +26,6 @@ class LoadingState extends MusicBeatState
 	var directory:String;
 	var callbacks:MultiCallback;
 	
-	var curFunkayNumber:Int = 0;
 	var funkay:FlxSprite;
 	var loadBar:FlxSprite;
 	var targetShit:Float = 0;
@@ -43,8 +42,8 @@ class LoadingState extends MusicBeatState
 	{
 		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
-		funkay = new FlxSprite(0, 0).loadGraphic(Paths.image('num${curFunkayNumber}'));
-		funkay.setGraphicSize(0, 250);
+		funkay = new FlxSprite(0, 0).loadGraphic(Paths.getPath('images/funkay.png', IMAGE));
+		funkay.setGraphicSize(0, FlxG.height);
 		funkay.updateHitbox();
 		funkay.antialiasing = FlxG.save.data.globalAntialiasing;
 		add(funkay);
@@ -111,18 +110,14 @@ class LoadingState extends MusicBeatState
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		funkay.setGraphicSize(Std.int(0.88 * 0.9 * (funkay.width - 0.88)));
+		funkay.setGraphicSize(Std.int(0.88 * FlxG.width + 0.9 * (funkay.width - 0.88 * FlxG.width)));
 		funkay.updateHitbox();
 		if(controls.ACCEPT)
 		{
-			curFunkayNumber += 1;
-			if(curFunkayNumber > 9)
-				curFunkayNumber = 0;
-
-			funkay.loadGraphic(Paths.image('num${curFunkayNumber}'));
 			funkay.setGraphicSize(Std.int(funkay.width + 60));
 			funkay.updateHitbox();
 		}
+
 
 		if(callbacks != null) {
 			targetShit = FlxMath.remapToRange(callbacks.numRemaining / callbacks.length, 1, 0, 0, 1);
