@@ -3841,9 +3841,8 @@ class PlayState extends MusicBeatState
 				}
 				if(note.mustPress)
 				{
-					var array = [note.strumTime,note.sustainLength,note.noteData,noteDiff];
 					if (note.isSustainNote)
-						array[1] = -1;
+						note.sustainLength -= 1;
 				}
 				
 				if(FlxG.save.data.botplay) {
@@ -3864,9 +3863,6 @@ class PlayState extends MusicBeatState
 				
 				note.wasGoodHit = true;
 				vocals.volume = 1;
-				var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
-				var leData:Int = Math.round(Math.abs(note.noteData));
-				var leType:String = note.noteType;
 				
 				if (!note.isSustainNote)
 				{
