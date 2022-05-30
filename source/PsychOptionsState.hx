@@ -950,7 +950,7 @@ class PreferencesSubstate extends MusicBeatSubstate
 						}
 						daText = howToDisplay;
 					case 'Hit Sound Volume':
-						daText = FlxG.save.data.hitSoundVolume;
+						daText = '' + FlxG.save.data.hitSoundVolume;
 				}
 				var lastTracker:FlxSprite = text.sprTracker;
 				text.sprTracker = null;

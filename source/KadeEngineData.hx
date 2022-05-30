@@ -111,7 +111,7 @@ class KadeEngineData
 			FlxG.save.data.healthBarAlpha = 1.0;
 
 		if(FlxG.save.data.hitSoundVolume == null)
-			FlxG.save.data.hitSoundVolume = 0.0;
+			FlxG.save.data.hitSoundVolume = 1.0;
 
 		//custom options tho
 		if(FlxG.save.data.fpsCounterFont == null)
