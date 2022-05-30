@@ -140,9 +140,9 @@ class PlayState extends MusicBeatState
 
 	private static var prevCamFollow:FlxObject;
 
-	public var strumLineNotes:FlxTypedGroup<FlxSprite> = null;
-	public var opponentStrums:FlxTypedGroup<FlxSprite> = null;
-	public var playerStrums:FlxTypedGroup<FlxSprite> = null;
+	public var strumLineNotes:FlxTypedGroup<StrumNote> = null;
+	public var opponentStrums:FlxTypedGroup<StrumNote> = null;
+	public var playerStrums:FlxTypedGroup<StrumNote> = null;
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
 	public var modchartTweens:Map<String, FlxTween> = new Map<String, FlxTween>();
@@ -1006,7 +1006,7 @@ class PlayState extends MusicBeatState
 		add(timeTxt);
 		timeBarBG.sprTracker = timeBar;
 
-		strumLineNotes = new FlxTypedGroup<FlxSprite>();
+		strumLineNotes = new FlxTypedGroup<StrumNote>();
 		add(strumLineNotes);
 		add(grpNoteSplashes);
 
@@ -1020,8 +1020,8 @@ class PlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.0;
 
-		opponentStrums = new FlxTypedGroup<FlxSprite>();
-		playerStrums = new FlxTypedGroup<FlxSprite>();
+		opponentStrums = new FlxTypedGroup<StrumNote>();
+		playerStrums = new FlxTypedGroup<StrumNote>();
 
 		// startCountdown();
 
@@ -1949,120 +1949,48 @@ class PlayState extends MusicBeatState
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 	}
 
+	public var skipArrowStartTween:Bool = false; //for lua
 	private function generateStaticArrows(player:Int):Void
 	{
 		for (i in 0...4)
+		{
+			// FlxG.log.add(i);
+			var targetAlpha:Float = 1;
+			if (player < 1 && FlxG.save.data.middleScroll) targetAlpha = 0.35;
+			if (player < 1 && FlxG.save.data.middleScroll && FlxG.save.data.classicMiddlescroll) targetAlpha = 0;
+
+			var babyArrow:StrumNote = new StrumNote(FlxG.save.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
+			babyArrow.downScroll = FlxG.save.data.downScroll;
+			if (!isStoryMode && !skipArrowStartTween)
 			{
-				// FlxG.log.add(i);
-				var targetAlpha:Float = 1;
-				if (player < 1 && FlxG.save.data.middleScroll) targetAlpha = 0.35;
-
-				var babyArrow:FlxSprite = new FlxSprite(FlxG.save.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y);
-	
-
-	
-				var texture:String = null;
-	
-				var skin:String = 'NOTE_assets';
-				if(PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
-				texture = skin;
-	
-		   		if(PlayState.PlayState.isPixelStage) {
-					babyArrow.loadGraphic(Paths.image('pixelUI/' + texture), true, 17, 17);
-					babyArrow.animation.add('green', [6]);
-					babyArrow.animation.add('red', [7]);
-					babyArrow.animation.add('blue', [5]);
-					babyArrow.animation.add('purplel', [4]);
-					babyArrow.setGraphicSize(Std.int(babyArrow.width * daPixelZoom));
-					babyArrow.updateHitbox();
-					babyArrow.antialiasing = false;
-					switch (Math.abs(i))
-					{
-						case 2:
-							babyArrow.x += Note.swagWidth * 2;
-							babyArrow.animation.add('static', [2]);
-							babyArrow.animation.add('pressed', [6, 10], 12, false);
-							babyArrow.animation.add('confirm', [14, 18], 12, false);
-						case 3:
-							babyArrow.x += Note.swagWidth * 3;
-							babyArrow.animation.add('static', [3]);
-							babyArrow.animation.add('pressed', [7, 11], 12, false);
-							babyArrow.animation.add('confirm', [15, 19], 24, false);
-						case 1:
-							babyArrow.x += Note.swagWidth * 1;
-							babyArrow.animation.add('static', [1]);
-							babyArrow.animation.add('pressed', [5, 9], 12, false);
-							babyArrow.animation.add('confirm', [13, 17], 24, false);
-						case 0:
-							babyArrow.x += Note.swagWidth * 0;
-							babyArrow.animation.add('static', [0]);
-							babyArrow.animation.add('pressed', [4, 8], 12, false);
-							babyArrow.animation.add('confirm', [12, 16], 24, false);
-					}
-				} else {
-					babyArrow.frames = Paths.getSparrowAtlas(texture);
-					babyArrow.animation.addByPrefix('green', 'arrowUP');
-					babyArrow.animation.addByPrefix('blue', 'arrowDOWN');
-					babyArrow.animation.addByPrefix('purple', 'arrowLEFT');
-					babyArrow.animation.addByPrefix('red', 'arrowRIGHT');
-					babyArrow.antialiasing = true;
-					babyArrow.setGraphicSize(Std.int(babyArrow.width * 0.7));
-					switch (Math.abs(i))
-					{
-						case 0:
-							babyArrow.x += Note.swagWidth * 0;
-							babyArrow.animation.addByPrefix('static', 'arrowLEFT');
-							babyArrow.animation.addByPrefix('pressed', 'left press', 24, false);
-							babyArrow.animation.addByPrefix('confirm', 'left confirm', 24, false);
-						case 1:
-							babyArrow.x += Note.swagWidth * 1;
-							babyArrow.animation.addByPrefix('static', 'arrowDOWN');
-							babyArrow.animation.addByPrefix('pressed', 'down press', 24, false);
-							babyArrow.animation.addByPrefix('confirm', 'down confirm', 24, false);
-						case 2:
-							babyArrow.x += Note.swagWidth * 2;
-							babyArrow.animation.addByPrefix('static', 'arrowUP');
-							babyArrow.animation.addByPrefix('pressed', 'up press', 24, false);
-							babyArrow.animation.addByPrefix('confirm', 'up confirm', 24, false);
-						case 3:
-							babyArrow.x += Note.swagWidth * 3;
-							babyArrow.animation.addByPrefix('static', 'arrowRIGHT');
-							babyArrow.animation.addByPrefix('pressed', 'right press', 24, false);
-							babyArrow.animation.addByPrefix('confirm', 'right confirm', 24, false);
-					}
-				}
-	
-				babyArrow.updateHitbox();
-				babyArrow.scrollFactor.set();
-	
-				if (!isStoryMode)
-				{
-					babyArrow.y -= 10;
-					babyArrow.alpha = 0;
-					FlxTween.tween(babyArrow, {y: babyArrow.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
-				}
-	
-				babyArrow.ID = i;
-	
-				switch (player)
-				{
-					case 0:
-						opponentStrums.add(babyArrow);
-					case 1:
-						playerStrums.add(babyArrow);
-				}
-	
-				babyArrow.animation.play('static');
-				babyArrow.x += 50;
-				babyArrow.x += ((FlxG.width / 2) * player);
-				
-				opponentStrums.forEach(function(spr:FlxSprite)
-				{					
-					spr.centerOffsets(); //CPU arrows start out slightly off-center
-				});
-	
-				strumLineNotes.add(babyArrow);
+				//babyArrow.y -= 10;
+				babyArrow.alpha = 0;
+				FlxTween.tween(babyArrow, {/*y: babyArrow.y + 10,*/ alpha: targetAlpha}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
 			}
+			else
+			{
+				babyArrow.alpha = targetAlpha;
+			}
+
+			if (player == 1)
+			{
+				playerStrums.add(babyArrow);
+			}
+			else
+			{
+				if(FlxG.save.data.middleScroll)
+				{
+					babyArrow.x += 310;
+					if(i > 1) { //Up and Right
+						babyArrow.x += FlxG.width / 2 + 25;
+					}
+				}
+				opponentStrums.add(babyArrow);
+			}
+
+			strumLineNotes.add(babyArrow);
+			babyArrow.postAddedToGroup();
+		}	
 	}
 
 	function tweenCamIn():Void
