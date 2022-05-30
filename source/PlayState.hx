@@ -236,7 +236,6 @@ class PlayState extends MusicBeatState
 	public var songScore:Int = 0;
 	var songScoreDef:Int = 0;
 	var scoreTxt:FlxText;
-	var replayTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
 
@@ -258,8 +257,6 @@ class PlayState extends MusicBeatState
 	public static var songOffset:Float = 0;
 	// BotPlay text
 	private var botPlayState:FlxText;
-	// Replay shit
-	private var saveNotes:Array<Dynamic> = [];
 
 	public static var highestCombo:Int = 0;
 
@@ -2630,18 +2627,6 @@ class PlayState extends MusicBeatState
 			}
 		checkEventNote();
 
-		if (FlxG.save.data.cpuStrums)
-		{
-			opponentStrums.forEach(function(spr:FlxSprite)
-			{
-				if (spr.animation.finished)
-				{
-					spr.animation.play('static');
-					spr.centerOffsets();
-				}
-			});
-		}
-
 		if (!inCutscene)
 			keyShit();
 
@@ -3062,13 +3047,8 @@ class PlayState extends MusicBeatState
 
 					FlxG.sound.music.stop();
 					vocals.stop();
-					if (FlxG.save.data.scoreScreen)
-						openSubState(new ResultsScreen());
-					else
-					{
-						FlxG.sound.playMusic(Paths.music('freakyMenu'));
-						MusicBeatState.switchState(new MainMenuState());
-					}
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					MusicBeatState.switchState(new MainMenuState());
 
 					StoryMenuState.weekCompleted.set(WeekData.weeksList[storyWeek], true);
 
@@ -3086,10 +3066,6 @@ class PlayState extends MusicBeatState
 					
 					// adjusting the song name to be compatible
 					var songFormat = StringTools.replace(PlayState.storyPlaylist[0], " ", "-");
-					switch (songFormat) {
-						case 'Dad-Battle': songFormat = 'Dadbattle';
-						case 'Philly-Nice': songFormat = 'Philly';
-					}
 
 					var poop:String = Highscore.formatSong(songFormat, storyDifficulty);
 
@@ -3122,16 +3098,11 @@ class PlayState extends MusicBeatState
 			{
 				trace('WENT BACK TO FREEPLAY??');
 
-				paused = true;
-
-
 				FlxG.sound.music.stop();
 				vocals.stop();
 
-				if (FlxG.save.data.scoreScreen)
-					openSubState(new ResultsScreen());
-				else
-					MusicBeatState.switchState(new PlayState());
+				MusicBeatState.switchState(new FreeplayState());
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 		}
 	}
@@ -3805,153 +3776,118 @@ class PlayState extends MusicBeatState
 
 			note.rating = Ratings.CalculateRating(noteDiff, Math.floor((PlayStateChangeables.safeFrames / 60) * 1000));
 
-			/* if (loadRep)
-			{
-				if (controlArray[note.noteData])
-					goodNoteHit(note, false);
-				else if (rep.replay.keyPresses.length > repPresses && !controlArray[note.noteData])
-				{
-					if (NearlyEquals(note.strumTime,rep.replay.keyPresses[repPresses].time, 4))
-					{
-						goodNoteHit(note, false);
-					}
-				}
-			} */
-			
 			if (controlArray[note.noteData])
 			{
 				goodNoteHit(note, (mashing > getKeyPresses(note)));
-				
-				/*if (mashing > getKeyPresses(note) && mashViolations <= 2)
-				{
-					mashViolations++;
-
-					goodNoteHit(note, (mashing > getKeyPresses(note)));
-				}
-				else if (mashViolations > 2)
-				{
-					// this is bad but fuck you
-					playerStrums.members[0].animation.play('static');
-					playerStrums.members[1].animation.play('static');
-					playerStrums.members[2].animation.play('static');
-					playerStrums.members[3].animation.play('static');
-					health -= 0.4;
-					trace('mash ' + mashing);
-					if (mashing != 0)
-						mashing = 0;
-				}
-				else
-					goodNoteHit(note, false);*/
-
 			}
 		}
 
-		function goodNoteHit(note:Note, resetMashViolation = true):Void
+	function goodNoteHit(note:Note, resetMashViolation = true):Void
+		{
+			if (mashing != 0)
+				mashing = 0;
+			var noteDiff:Float = -(note.strumTime - Conductor.songPosition);
+			note.rating = Ratings.CalculateRating(noteDiff);
+			if (note.rating == "miss")
+				return;	
+			// add newest note to front of notesHitArray
+			// the oldest notes are at the end and are removed first	
+			if (!note.isSustainNote)
+				notesHitArray.unshift(Date.now());
+			if (!resetMashViolation && mashViolations >= 1)
+				mashViolations--;
+			if (mashViolations < 0)
+				mashViolations = 0;
+			if (!note.wasGoodHit)
 			{
-
-				if (mashing != 0)
-					mashing = 0;
-
-				var noteDiff:Float = -(note.strumTime - Conductor.songPosition);
-
-				note.rating = Ratings.CalculateRating(noteDiff);
-
-				if (note.rating == "miss")
-					return;	
-
-				// add newest note to front of notesHitArray
-				// the oldest notes are at the end and are removed first
 				if (!note.isSustainNote)
-					notesHitArray.unshift(Date.now());
-
-				if (!resetMashViolation && mashViolations >= 1)
-					mashViolations--;
-
-				if (mashViolations < 0)
-					mashViolations = 0;
-
-				if (!note.wasGoodHit)
 				{
-					if (!note.isSustainNote)
-					{
-						popUpScore(note);
-						combo += 1;
-					}
-					else
-						totalNotesHit += 1;
-	
-					if(!note.noAnimation) {
-						var daAlt = '';
-						if(note.noteType == 'Alt Animation') daAlt = '-alt';
-			
-						var animToPlay:String = singAnimations[Std.int(Math.abs(note.noteData))];
+					popUpScore(note);
+					combo += 1;
+				}
+				else
+					totalNotesHit += 1;
+
+				if(!note.noAnimation) {
+					var daAlt = '';
+					if(note.noteType == 'Alt Animation') daAlt = '-alt';
 		
-						//if (note.isSustainNote){ wouldn't this be fun : P. i think it would be swell
-							
-							//if(note.gfNote) {
-							//  var anim = animToPlay +"-hold" + daAlt;
-							//	if(gf.animation.getByName(anim) == null)anim = animToPlay + daAlt;
-							//	gf.playAnim(anim, true);
-							//	gf.holdTimer = 0;
-							//} else {
-							//  var anim = animToPlay +"-hold" + daAlt;
-							//	if(boyfriend.animation.getByName(anim) == null)anim = animToPlay + daAlt;
-							//	boyfriend.playAnim(anim, true);
-							//	boyfriend.holdTimer = 0;
-							//}
-						//}else{
-							if(note.gfNote) {
-								gf.playAnim(animToPlay + daAlt, true);
-								gf.holdTimer = 0;
-							} else {
-								boyfriend.playAnim(animToPlay + daAlt, true);
-								boyfriend.holdTimer = 0;
-							}
+					var animToPlay:String = singAnimations[Std.int(Math.abs(note.noteData))];
+	
+					//if (note.isSustainNote){ wouldn't this be fun : P. i think it would be swell
+						
+						//if(note.gfNote) {
+						//  var anim = animToPlay +"-hold" + daAlt;
+						//	if(gf.animation.getByName(anim) == null)anim = animToPlay + daAlt;
+						//	gf.playAnim(anim, true);
+						//	gf.holdTimer = 0;
+						//} else {
+						//  var anim = animToPlay +"-hold" + daAlt;
+						//	if(boyfriend.animation.getByName(anim) == null)anim = animToPlay + daAlt;
+						//	boyfriend.playAnim(anim, true);
+						//	boyfriend.holdTimer = 0;
 						//}
-						if(note.noteType == 'Hey!') {
-							if(boyfriend.animOffsets.exists('hey')) {
-								boyfriend.playAnim('hey', true);
-								boyfriend.specialAnim = true;
-								boyfriend.heyTimer = 0.6;
-							}
-			
-							if(gf.animOffsets.exists('cheer')) {
-								gf.playAnim('cheer', true);
-								gf.specialAnim = true;
-								gf.heyTimer = 0.6;
-							}
+					//}else{
+						if(note.gfNote) {
+							gf.playAnim(animToPlay + daAlt, true);
+							gf.holdTimer = 0;
+						} else {
+							boyfriend.playAnim(animToPlay + daAlt, true);
+							boyfriend.holdTimer = 0;
+						}
+					//}
+					if(note.noteType == 'Hey!') {
+						if(boyfriend.animOffsets.exists('hey')) {
+							boyfriend.playAnim('hey', true);
+							boyfriend.specialAnim = true;
+							boyfriend.heyTimer = 0.6;
+						}
+		
+						if(gf.animOffsets.exists('cheer')) {
+							gf.playAnim('cheer', true);
+							gf.specialAnim = true;
+							gf.heyTimer = 0.6;
 						}
 					}
-
-					if(note.mustPress)
-					{
-						var array = [note.strumTime,note.sustainLength,note.noteData,noteDiff];
-						if (note.isSustainNote)
-							array[1] = -1;
+				}
+				if(note.mustPress)
+				{
+					var array = [note.strumTime,note.sustainLength,note.noteData,noteDiff];
+					if (note.isSustainNote)
+						array[1] = -1;
+				}
+				
+				if(FlxG.save.data.botplay) {
+					var time:Float = 0.15;
+					if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
+						time += 0.15;
 					}
-					
-					playerStrums.forEach(function(spr:FlxSprite)
+					StrumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4, time);
+				} else {
+					playerStrums.forEach(function(spr:StrumNote)
 					{
 						if (Math.abs(note.noteData) == spr.ID)
 						{
-							spr.animation.play('confirm', true);
+							spr.playAnim('confirm', true);
 						}
 					});
-					
-					note.wasGoodHit = true;
-					vocals.volume = 1;
-
-					var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
-					var leData:Int = Math.round(Math.abs(note.noteData));
-					var leType:String = note.noteType;
-		
+				}
+				
+				note.wasGoodHit = true;
+				vocals.volume = 1;
+				var isSus:Bool = note.isSustainNote; //GET OUT OF MY HEAD, GET OUT OF MY HEAD, GET OUT OF MY HEAD
+				var leData:Int = Math.round(Math.abs(note.noteData));
+				var leType:String = note.noteType;
+				
+				if (!note.isSustainNote)
+				{
 					note.kill();
 					notes.remove(note, true);
 					note.destroy();
-					
-					updateAccuracy();
 				}
+				updateAccuracy();
 			}
+		}
 
 	function opponentNoteHit(note:Note):Void
 	{
@@ -3993,7 +3929,9 @@ class PlayState extends MusicBeatState
 		if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
 			time += 0.15;
 		}
-
+		if(FlxG.save.data.cpuStrums) {
+			StrumPlayAnim(true, Std.int(Math.abs(note.noteData)) % 4, time);
+		}
 		note.hitByOpponent = true;
 
 		if (!note.isSustainNote)
@@ -4004,7 +3942,6 @@ class PlayState extends MusicBeatState
 		}
 	}
 		
-
 	var fastCarCanDrive:Bool = true;
 
 	function resetFastCar():Void
@@ -4338,5 +4275,19 @@ class PlayState extends MusicBeatState
 			return true;
 		}
 		return false;
+	}
+
+	function StrumPlayAnim(isDad:Bool, id:Int, time:Float) {
+		var spr:StrumNote = null;
+		if(isDad) {
+			spr = strumLineNotes.members[id];
+		} else {
+			spr = playerStrums.members[id];
+		}
+
+		if(spr != null) {
+			spr.playAnim('confirm', true);
+			spr.resetAnim = time;
+		}
 	}
 }

@@ -81,9 +81,6 @@ class KadeEngineData
 		if (FlxG.save.data.camzoom == null)
 			FlxG.save.data.camzoom = true;
 
-		if (FlxG.save.data.scoreScreen == null)
-			FlxG.save.data.scoreScreen = true;
-
 		//psych options in kade go brrr
 		if(FlxG.save.data.arrowHSV == null)
 			FlxG.save.data.arrowHSV = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];

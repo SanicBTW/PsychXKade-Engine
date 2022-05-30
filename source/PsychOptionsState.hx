@@ -449,7 +449,6 @@ class PreferencesSubstate extends MusicBeatSubstate
         #end
         'Flashing',
         'Botplay', //might make it available in the pause menu?? or in the gameplay modifiers on freeplay state??? help
-        'Score Screen',
 		'FPS Counter Font'
     ];
 
@@ -667,8 +666,6 @@ class PreferencesSubstate extends MusicBeatSubstate
                         FlxG.save.data.flashing = !FlxG.save.data.flashing;
                     case 'Botplay':
                         FlxG.save.data.botplay = !FlxG.save.data.botplay;
-                    case 'Score Screen':
-                        FlxG.save.data.scoreScreen = !FlxG.save.data.scoreScreen;
 
 					case 'Middlescroll':
 						FlxG.save.data.middleScroll = !FlxG.save.data.middleScroll;
@@ -790,8 +787,6 @@ class PreferencesSubstate extends MusicBeatSubstate
                 daText = "Toggle flashing lights that can cause epileptic seizures and strain.";
             case 'Botplay':
                 daText = "Showcase your charts and mods with autoplay.";
-            case 'Score Screen':
-                daText = "Show the score screen after the end of a song";
 			case 'FPS Counter Font':
 				daText = "Changes the FPS Counter Font\nTo apply changes you have to restart the engine";
 
@@ -897,8 +892,6 @@ class PreferencesSubstate extends MusicBeatSubstate
                         daValue = FlxG.save.data.flashing;
                     case 'Botplay':
                         daValue = FlxG.save.data.botplay;
-                    case 'Score Screen':
-                        daValue = FlxG.save.data.scoreScreen;
 
 					case 'Middlescroll':
 						daValue = FlxG.save.data.middleScroll;
