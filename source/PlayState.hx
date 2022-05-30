@@ -100,9 +100,6 @@ class PlayState extends MusicBeatState
 	public static var songPosBG:FlxSprite;
 	public static var songPosBar:FlxBar;
 
-	public static var rep:Replay;
-	public static var loadRep:Bool = false;
-
 	public static var noteBools:Array<Bool> = [false, false, false, false];
 
 	var halloweenLevel:Bool = false;
@@ -129,7 +126,7 @@ class PlayState extends MusicBeatState
 	public var gf:Character;
 	public var boyfriend:Boyfriend;
 
-	public var notes:FlxTypedGroup<Note>;
+	public static var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
 	public var eventNotes:Array<EventNote> = [];
 
@@ -251,12 +248,7 @@ class PlayState extends MusicBeatState
 	public static var theFunne:Bool = true;
 	var funneEffect:FlxSprite;
 	var inCutscene:Bool = false;
-	public static var repPresses:Int = 0;
-	public static var repReleases:Int = 0;
 
-	public static var timeCurrently:Float = 0;
-	public static var timeCurrentlyR:Float = 0;
-	
 	// Will fire once to prevent debug spam messages and broken animations
 	private var triggeredAlready:Bool = false;
 	
@@ -320,10 +312,6 @@ class PlayState extends MusicBeatState
 			goods = 0;
 		}
 		misses = 0;
-
-		repPresses = 0;
-		repReleases = 0;
-
 
 		PlayStateChangeables.useDownscroll = FlxG.save.data.downscroll;
 		PlayStateChangeables.safeFrames = FlxG.save.data.frames;
@@ -902,16 +890,6 @@ class PlayState extends MusicBeatState
 
 		add(dadGroup);
 		add(boyfriendGroup);
-		if (loadRep)
-		{
-			FlxG.watch.addQuick('rep rpesses',repPresses);
-			FlxG.watch.addQuick('rep releases',repReleases);
-			// FlxG.watch.addQuick('Queued',inputsQueued);
-
-			PlayStateChangeables.useDownscroll = rep.replay.isDownscroll;
-			PlayStateChangeables.safeFrames = rep.replay.sf;
-			PlayStateChangeables.botPlay = true;
-		}
 
 		trace('uh ' + PlayStateChangeables.safeFrames);
 
@@ -1198,10 +1176,6 @@ class PlayState extends MusicBeatState
 					startCountdown();
 			}
 		}
-
-		if (!loadRep)
-			rep = new Replay("na");
-
 
 		super.create();
 
@@ -3037,14 +3011,9 @@ class PlayState extends MusicBeatState
 		if (isStoryMode)
 			campaignMisses = misses;
 
-		if (!loadRep)
-			rep.SaveReplay(saveNotes);
-		else
-		{
-			PlayStateChangeables.botPlay = false;
-			PlayStateChangeables.scrollSpeed = 1;
-			PlayStateChangeables.useDownscroll = false;
-		}
+		PlayStateChangeables.botPlay = false;
+		PlayStateChangeables.scrollSpeed = 1;
+		PlayStateChangeables.useDownscroll = false;
 
 		if (FlxG.save.data.fpsCap > 290)
 			(cast (Lib.current.getChildAt(0), Main)).setFPSCap(290);
@@ -3275,7 +3244,7 @@ class PlayState extends MusicBeatState
 			rating.velocity.x -= FlxG.random.int(0, 10);
 			
 			var msTiming = HelperFunctions.truncateFloat(noteDiff, 3);
-			if(PlayStateChangeables.botPlay && !loadRep) msTiming = 0;		
+			if(PlayStateChangeables.botPlay ) msTiming = 0;		
 			
 			if (currentTimingShown != null)
 				remove(currentTimingShown);
@@ -3321,7 +3290,7 @@ class PlayState extends MusicBeatState
 			if (currentTimingShown.alpha != 1)
 				currentTimingShown.alpha = 1;
 
-			if(!PlayStateChangeables.botPlay || loadRep) add(currentTimingShown);
+			if(!PlayStateChangeables.botPlay) add(currentTimingShown);
 			
 			var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
 			comboSpr.screenCenter();
@@ -3338,7 +3307,7 @@ class PlayState extends MusicBeatState
 	
 			comboSpr.velocity.x += FlxG.random.int(1, 10);
 			currentTimingShown.velocity.x += comboSpr.velocity.x;
-			if(!PlayStateChangeables.botPlay || loadRep) add(rating);
+			if(!PlayStateChangeables.botPlay) add(rating);
 	
 			if (!PlayState.isPixelStage)
 			{
@@ -3954,13 +3923,11 @@ class PlayState extends MusicBeatState
 						}
 					}
 
-					if(!loadRep && note.mustPress)
+					if(note.mustPress)
 					{
 						var array = [note.strumTime,note.sustainLength,note.noteData,noteDiff];
 						if (note.isSustainNote)
 							array[1] = -1;
-						trace('pushing ' + array[0]);
-						saveNotes.push(array);
 					}
 					
 					playerStrums.forEach(function(spr:FlxSprite)
