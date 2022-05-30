@@ -80,6 +80,8 @@ class Note extends FlxSprite
 
 	public var noteskin:String;
 
+	public var colorSwap:ColorSwap;
+
 	private function set_texture(value:String):String {
 		if(texture != value) {
 			reloadNote('', value);
@@ -105,6 +107,10 @@ class Note extends FlxSprite
 					noAnimation = true;
 				case 'GF Sing':
 					gfNote = true;
+				default:
+					colorSwap.hue = FlxG.save.data.arrowHSV[noteData % 4][0] / 360;
+					colorSwap.saturation = FlxG.save.data.arrowHSV[noteData % 4][1] / 100;
+					colorSwap.brightness = FlxG.save.data.arrowHSV[noteData % 4][2] / 100;
 			}
 			noteType = value;
 		}
@@ -121,7 +127,7 @@ class Note extends FlxSprite
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
 
-		x += 50;
+		x += (FlxG.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = Math.round(strumTime);
@@ -136,61 +142,65 @@ class Note extends FlxSprite
 		//defaults if no noteStyle was found in chart
 
 		if(noteData > -1) {
-        texture = '';
-		switch (noteData)
-		{
-			case 0:
-				x += swagWidth * 0;
-				animation.play('purpleScroll');
-			case 1:
-				x += swagWidth * 1;
-				animation.play('blueScroll');
-			case 2:
-				x += swagWidth * 2;
-				animation.play('greenScroll');
-			case 3:
-				x += swagWidth * 3;
-				animation.play('redScroll');
-		}
+			colorSwap = new ColorSwap();
+			shader = colorSwap.shader;
+
+			colorSwap.hue = FlxG.save.data.arrowHSV[noteData % 4][0] / 360;
+			colorSwap.saturation = FlxG.save.data.arrowHSV[noteData % 4][1] / 100;
+			colorSwap.brightness = FlxG.save.data.arrowHSV[noteData % 4][2] / 100;
+
+			x += swagWidth * (noteData % 4);
+
+       		texture = '';
+			if(!isSustainNote)
+			{
+				var animToPlay:String = '';
+				switch (noteData % 4)
+				{
+					case 0:
+						animToPlay = 'purple';
+					case 1:
+						animToPlay = 'blue';
+					case 2:
+						animToPlay = 'green';
+					case 3:
+						animToPlay = 'red';
+				}
+				animation.play(animToPlay + 'Scroll');
+			}
 	    }
 
 		// trace(prevNote);
 
-		// we make sure its downscroll and its a SUSTAIN NOTE (aka a trail, not a note)
-		// and flip it so it doesn't look weird.
-		// THIS DOESN'T FUCKING FLIP THE NOTE, CONTRIBUTERS DON'T JUST COMMENT THIS OUT JESUS
-		if (FlxG.save.data.downscroll && sustainNote) 
-			flipY = true;
-
-		if (isSustainNote && prevNote != null)
+		if(isSustainNote && prevNote != null)
 		{
-			noteScore * 0.2;
 			alpha = 0.6;
+			if(FlxG.save.data.downscroll) flipY = true;
 
 			x += width / 2;
 
 			switch (noteData)
 			{
+				case 0:
+					animation.play('purpleholdend');
+				case 1:
+					animation.play('blueholdend');
 				case 2:
 					animation.play('greenholdend');
 				case 3:
 					animation.play('redholdend');
-				case 1:
-					animation.play('blueholdend');
-				case 0:
-					animation.play('purpleholdend');
 			}
 
 			updateHitbox();
 
 			x -= width / 2;
 
-			if (PlayState.PlayState.isPixelStage)
+			if(PlayState.curStage.startsWith('school'))
 				x += 30;
 
-			if (prevNote.isSustainNote)
+			if(prevNote.isSustainNote)
 			{
-				switch (prevNote.noteData)
+				switch(prevNote.noteData)
 				{
 					case 0:
 						prevNote.animation.play('purplehold');
@@ -202,15 +212,15 @@ class Note extends FlxSprite
 						prevNote.animation.play('redhold');
 				}
 
-
 				if(FlxG.save.data.scrollSpeed != 1)
 					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * FlxG.save.data.scrollSpeed;
 				else
 					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
 				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
+
 			}
 		}
+		if(PlayState.curStage.startsWith('school') && noteData > -1) reloadNote();
 	}
 
 	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = '') {
