@@ -968,6 +968,7 @@ class PlayState extends MusicBeatState
 		strumLine = new FlxSprite(FlxG.save.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, 50).makeGraphic(FlxG.width, 10);
 		if(FlxG.save.data.downScroll) strumLine.y = FlxG.height - 150;
 		strumLine.scrollFactor.set();
+
 		var showTime:Bool = (FlxG.save.data.timeBarType != 'Disabled');
 		timeTxt = new FlxText(STRUM_X + (FlxG.width / 2) - 248, 19, 400, "", 32);
 		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -1701,37 +1702,8 @@ class PlayState extends MusicBeatState
 		// Song duration in a float, useful for the time left feature
 		songLength = FlxG.sound.music.length;
 
-		if (FlxG.save.data.songPosition)
-		{
-			remove(songPosBG);
-			remove(songPosBar);
-			remove(songName);
-
-			songPosBG = new FlxSprite(0, 10).loadGraphic(Paths.image('healthBar'));
-			if (PlayStateChangeables.useDownscroll)
-				songPosBG.y = FlxG.height * 0.9 + 45; 
-			songPosBG.screenCenter(X);
-			songPosBG.scrollFactor.set();
-			add(songPosBG);
-
-			songPosBar = new FlxBar(songPosBG.x + 4, songPosBG.y + 4, LEFT_TO_RIGHT, Std.int(songPosBG.width - 8), Std.int(songPosBG.height - 8), this,
-				'songPositionBar', 0, songLength - 1000);
-			songPosBar.numDivisions = 1000;
-			songPosBar.scrollFactor.set();
-			songPosBar.createFilledBar(FlxColor.GRAY, FlxColor.LIME);
-			add(songPosBar);
-
-			var songName = new FlxText(songPosBG.x + (songPosBG.width / 2) - 20,songPosBG.y,0,SONG.song, 16);
-			if (PlayStateChangeables.useDownscroll)
-				songName.y -= 3;
-			songName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
-			songName.scrollFactor.set();
-			add(songName);
-
-			songPosBG.cameras = [camHUD];
-			songPosBar.cameras = [camHUD];
-			songName.cameras = [camHUD];
-		}
+		FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
+		FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 		
 		// Song check real quick
 		switch(curSong)
@@ -1982,17 +1954,18 @@ class PlayState extends MusicBeatState
 		for (i in 0...4)
 			{
 				// FlxG.log.add(i);
-				var babyArrow:FlxSprite = new FlxSprite(0, strumLine.y);
+				var targetAlpha:Float = 1;
+				if (player < 1 && FlxG.save.data.middleScroll) targetAlpha = 0.35;
+
+				var babyArrow:FlxSprite = new FlxSprite(FlxG.save.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y);
 	
-				//defaults if no noteStyle was found in chart
-				// var noteTypeCheck:String = 'normal';
+
 	
 				var texture:String = null;
 	
 				var skin:String = 'NOTE_assets';
 				if(PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
-				texture = skin; //Load texture and anims
-	
+				texture = skin;
 	
 		   		if(PlayState.PlayState.isPixelStage) {
 					babyArrow.loadGraphic(Paths.image('pixelUI/' + texture), true, 17, 17);
