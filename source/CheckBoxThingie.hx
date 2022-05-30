@@ -1,5 +1,6 @@
-package psych;
+package;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 
@@ -13,7 +14,7 @@ class CheckboxThingie extends FlxSprite
 		frames = Paths.getSparrowAtlas('checkboxThingie');
 		animation.addByPrefix("static", "Check Box unselected", 24, false);
 		animation.addByPrefix("checked", "Check Box selecting animation", 24, false);
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = FlxG.save.data.globalAntialiasing;
 		setGraphicSize(Std.int(0.6 * width));
 		updateHitbox();
 		set_daValue(checked);

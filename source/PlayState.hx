@@ -1,6 +1,6 @@
 package;
 
-import psych.NoteSplash;
+import NoteSplash;
 import flixel.addons.display.FlxNestedSprite;
 import haxe.display.FsPath;
 import flixel.graphics.FlxGraphic;
@@ -3057,7 +3057,7 @@ class PlayState extends MusicBeatState
 		if (SONG.validScore)
 		{
 			#if !switch
-			Highscore.saveScore(SONG.song, Math.round(songScore), storyDifficulty, accuracy);
+			Highscore.saveScore(SONG.song, Math.round(songScore), storyDifficulty, HelperFunctions.truncateFloat(accuracy, 2));
 			Highscore.saveCombo(SONG.song, Ratings.GenerateLetterRank(accuracy), storyDifficulty);
 			#end
 

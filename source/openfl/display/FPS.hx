@@ -1,4 +1,4 @@
-package psych.openfl.display;
+package openfl.display;
 
 import flixel.FlxG;
 import haxe.Timer;
