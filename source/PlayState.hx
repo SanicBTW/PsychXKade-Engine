@@ -3838,6 +3838,31 @@ class PlayState extends MusicBeatState
 							gf.heyTimer = 0.6;
 						}
 					}
+
+					if(note.noteType == 'Bullet Note') {
+						var shootAnims = ["LEFTshoot", "DOWNshoot", "UPshoot", "RIGHTshoot"];
+
+						dad.playAnim(shootAnims[Std.int(Math.abs(note.noteData))], true);
+						dad.specialAnim = true;
+
+						boyfriend.playAnim('dodge', true);
+						boyfriend.specialAnim = true;
+
+						FlxG.camera.shake(0.01, 0.2);
+
+						FlxG.sound.play(Paths.sound('hankshoot'));
+
+						note.wasGoodHit = true;
+						health += 0.023;
+
+						if (!note.isSustainNote)
+						{
+							note.kill();
+							notes.remove(note, true);
+							note.destroy();
+						}
+
+					}
 				}
 				if(note.mustPress)
 				{
@@ -3866,6 +3891,10 @@ class PlayState extends MusicBeatState
 				
 				if (!note.isSustainNote)
 				{
+					if(FlxG.save.data.hitSoundVolume > 0)
+					{
+						FlxG.sound.play(Paths.sound('notehitsound'), FlxG.save.data.hitSoundVolume);
+					}
 					note.kill();
 					notes.remove(note, true);
 					note.destroy();

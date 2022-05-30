@@ -94,6 +94,11 @@ class Note extends FlxSprite
 
 		if(noteData > -1 && noteType != value) {
 			switch(value) {
+				case 'Bullet Note':
+					reloadNote('BULLETNOTE');
+					hitCausesMiss = false;
+					ignoreNote = false;
+					mustPress = true;
 				case 'Hurt Note':
 					ignoreNote = mustPress;
 					reloadNote('HURT');
@@ -130,30 +135,18 @@ class Note extends FlxSprite
 		x += (FlxG.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
-		this.strumTime = Math.round(strumTime);
-
-		if (this.strumTime < 0 )
-			this.strumTime = 0;
+		this.strumTime = strumTime;
+		if(!inEditor) this.strumTime += FlxG.save.data.offset;
 
 		this.noteData = noteData;
 
-		var daStage:String = PlayState.curStage;
-
-		//defaults if no noteStyle was found in chart
-
 		if(noteData > -1) {
+			texture = '';
 			colorSwap = new ColorSwap();
 			shader = colorSwap.shader;
 
-			colorSwap.hue = FlxG.save.data.arrowHSV[noteData % 4][0] / 360;
-			colorSwap.saturation = FlxG.save.data.arrowHSV[noteData % 4][1] / 100;
-			colorSwap.brightness = FlxG.save.data.arrowHSV[noteData % 4][2] / 100;
-
 			x += swagWidth * (noteData % 4);
-
-       		texture = '';
-			if(!isSustainNote)
-			{
+			if(!isSustainNote) { //Doing this 'if' check to fix the warnings on Senpai songs
 				var animToPlay:String = '';
 				switch (noteData % 4)
 				{
@@ -168,16 +161,18 @@ class Note extends FlxSprite
 				}
 				animation.play(animToPlay + 'Scroll');
 			}
-	    }
+		}
 
 		// trace(prevNote);
 
-		if(isSustainNote && prevNote != null)
+		if (isSustainNote && prevNote != null)
 		{
 			alpha = 0.6;
+			multAlpha = 0.6;
 			if(FlxG.save.data.downscroll) flipY = true;
 
-			x += width / 2;
+			offsetX += width / 2;
+			copyAngle = false;
 
 			switch (noteData)
 			{
@@ -193,14 +188,14 @@ class Note extends FlxSprite
 
 			updateHitbox();
 
-			x -= width / 2;
+			offsetX -= width / 2;
 
-			if(PlayState.curStage.startsWith('school'))
-				x += 30;
+			if (PlayState.isPixelStage)
+				offsetX += 30;
 
-			if(prevNote.isSustainNote)
+			if (prevNote.isSustainNote)
 			{
-				switch(prevNote.noteData)
+				switch (prevNote.noteData)
 				{
 					case 0:
 						prevNote.animation.play('purplehold');
@@ -212,17 +207,31 @@ class Note extends FlxSprite
 						prevNote.animation.play('redhold');
 				}
 
-				if(FlxG.save.data.scrollSpeed != 1)
-					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * FlxG.save.data.scrollSpeed;
-				else
-					prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
-				prevNote.updateHitbox();
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
+				if(PlayState.instance != null)
+				{
+					prevNote.scale.y *= PlayState.instance.songSpeed;
+				}
 
+				if(PlayState.isPixelStage) {
+					prevNote.scale.y *= 1.19;
+					prevNote.scale.y *= (6 / height); //Auto adjust note size
+				}
+				prevNote.updateHitbox();
+				// prevNote.setGraphicSize();
+			}
+
+			if(PlayState.isPixelStage) {
+				scale.y *= PlayState.daPixelZoom;
+				updateHitbox();
 			}
 		}
-		if(PlayState.curStage.startsWith('school') && noteData > -1) reloadNote();
+		x += offsetX;
 	}
 
+	var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
+	var lastNoteScaleToo:Float = 1;
+	public var originalHeightForCalcs:Float = 6;
 	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = '') {
 		if(prefix == null) prefix = '';
 		if(texture == null) texture = '';
@@ -244,65 +253,97 @@ class Note extends FlxSprite
 		var arraySkin:Array<String> = skin.split('/');
 		arraySkin[arraySkin.length-1] = prefix + arraySkin[arraySkin.length-1] + suffix;
 
+		var lastScaleY:Float = scale.y;
 		var blahblah:String = arraySkin.join('/');
-		var noteTypeCheck:String = 'normal';
+		if(PlayState.isPixelStage) {
+			if(isSustainNote) {
+				loadGraphic(Paths.image('pixelUI/' + blahblah + 'ENDS'));
+				width = width / 4;
+				height = height / 2;
+				originalHeightForCalcs = height;
+				loadGraphic(Paths.image('pixelUI/' + blahblah + 'ENDS'), true, Math.floor(width), Math.floor(height));
+			} else {
+				loadGraphic(Paths.image('pixelUI/' + blahblah));
+				width = width / 4;
+				height = height / 5;
+				loadGraphic(Paths.image('pixelUI/' + blahblah), true, Math.floor(width), Math.floor(height));
+			}
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+			loadPixelNoteAnims();
+			antialiasing = false;
 
-		if (PlayState.SONG.arrowSkin == null) {
-			switch(PlayState.storyWeek) {case 6: noteTypeCheck = 'pixel';}
-		} else {noteTypeCheck = PlayState.SONG.arrowSkin;}
-
-        if(PlayState.PlayState.isPixelStage) {
-				loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels','week6'), true, 17, 17);
-
-				animation.add('greenScroll', [6]);
-				animation.add('redScroll', [7]);
-				animation.add('blueScroll', [5]);
-				animation.add('purpleScroll', [4]);
-
-				if (isSustainNote)
+			if(isSustainNote) {
+				offsetX += lastNoteOffsetXForPixelAutoAdjusting;
+				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.daPixelZoom / 2);
+				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
+				
+				/*if(animName != null && !animName.endsWith('end'))
 				{
-					loadGraphic(Paths.image('weeb/pixelUI/arrowEnds','week6'), true, 7, 6);
-
-					animation.add('purpleholdend', [4]);
-					animation.add('greenholdend', [6]);
-					animation.add('redholdend', [7]);
-					animation.add('blueholdend', [5]);
-
-					animation.add('purplehold', [0]);
-					animation.add('greenhold', [2]);
-					animation.add('redhold', [3]);
-					animation.add('bluehold', [1]);
-				}
-
-				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-				updateHitbox();
+					lastScaleY /= lastNoteScaleToo;
+					lastNoteScaleToo = (6 / height);
+					lastScaleY *= lastNoteScaleToo; 
+				}*/
+			}
 		} else {
-				frames = Paths.getSparrowAtlas(blahblah);
-
-				animation.addByPrefix('greenScroll', 'green0');
-				animation.addByPrefix('redScroll', 'red0');
-				animation.addByPrefix('blueScroll', 'blue0');
-				animation.addByPrefix('purpleScroll', 'purple0');
-
-				animation.addByPrefix('purpleholdend', 'pruple end hold');
-				animation.addByPrefix('greenholdend', 'green hold end');
-				animation.addByPrefix('redholdend', 'red hold end');
-				animation.addByPrefix('blueholdend', 'blue hold end');
-
-				animation.addByPrefix('purplehold', 'purple hold piece');
-				animation.addByPrefix('greenhold', 'green hold piece');
-				animation.addByPrefix('redhold', 'red hold piece');
-				animation.addByPrefix('bluehold', 'blue hold piece');
-
-				setGraphicSize(Std.int(width * 0.7));
-				updateHitbox();
-				antialiasing = true;
+			frames = Paths.getSparrowAtlas(blahblah);
+			loadNoteAnims();
+			antialiasing = FlxG.save.data.globalAntialiasing;
 		}
-
+		if(isSustainNote) {
+			scale.y = lastScaleY;
+		}
 		updateHitbox();
 
 		if(animName != null)
 			animation.play(animName, true);
+
+		/*
+		if(inEditor) {
+			setGraphicSize(ChartingState.GRID_SIZE, ChartingState.GRID_SIZE);
+			updateHitbox();
+		}*/
+	}
+
+	function loadNoteAnims() {
+		animation.addByPrefix('greenScroll', 'green0');
+		animation.addByPrefix('redScroll', 'red0');
+		animation.addByPrefix('blueScroll', 'blue0');
+		animation.addByPrefix('purpleScroll', 'purple0');
+
+		if (isSustainNote)
+		{
+			animation.addByPrefix('purpleholdend', 'pruple end hold');
+			animation.addByPrefix('greenholdend', 'green hold end');
+			animation.addByPrefix('redholdend', 'red hold end');
+			animation.addByPrefix('blueholdend', 'blue hold end');
+
+			animation.addByPrefix('purplehold', 'purple hold piece');
+			animation.addByPrefix('greenhold', 'green hold piece');
+			animation.addByPrefix('redhold', 'red hold piece');
+			animation.addByPrefix('bluehold', 'blue hold piece');
+		}
+
+		setGraphicSize(Std.int(width * 0.7));
+		updateHitbox();
+	}
+
+	function loadPixelNoteAnims() {
+		if(isSustainNote) {
+			animation.add('purpleholdend', [PURP_NOTE + 4]);
+			animation.add('greenholdend', [GREEN_NOTE + 4]);
+			animation.add('redholdend', [RED_NOTE + 4]);
+			animation.add('blueholdend', [BLUE_NOTE + 4]);
+
+			animation.add('purplehold', [PURP_NOTE]);
+			animation.add('greenhold', [GREEN_NOTE]);
+			animation.add('redhold', [RED_NOTE]);
+			animation.add('bluehold', [BLUE_NOTE]);
+		} else {
+			animation.add('greenScroll', [GREEN_NOTE + 4]);
+			animation.add('redScroll', [RED_NOTE + 4]);
+			animation.add('blueScroll', [BLUE_NOTE + 4]);
+			animation.add('purpleScroll', [PURP_NOTE + 4]);
+		}
 	}
 
 	override function update(elapsed:Float)

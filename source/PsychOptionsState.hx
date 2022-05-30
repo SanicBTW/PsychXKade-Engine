@@ -416,7 +416,8 @@ class PreferencesSubstate extends MusicBeatSubstate
         'Framerate',
         'Scroll Speed',
         'Accuracy Display',
-        'FPS Counter Font'
+        'FPS Counter Font',
+		'Hit Sound Volume'
     ];
     static var options:Array<String> = [
         'GAMEPLAY',
@@ -431,6 +432,7 @@ class PreferencesSubstate extends MusicBeatSubstate
         'Scroll Speed',
         'Accuracy Display',
         'Reset Button',
+		'Hit Sound Volume',
         //'Customize Gameplay' might get the latest customize gameplay state from psych
         'APPEARANCE',
         'Distractions',
@@ -723,6 +725,12 @@ class PreferencesSubstate extends MusicBeatSubstate
 						}
 						FlxG.save.data.fpsCounterFont = howToSaveIt;
 						Main.fpsCounter.defaultTextFormat.font = FlxG.save.data.fpsCounterFont;
+					case 'Hit Sound Volume':
+                        var custAdd = controls.LEFT ? -0.1 : 0.1;
+                        if(holdTime > 1.5) custAdd = controls.LEFT ? -0.5 : 0.5;
+                        FlxG.save.data.hitSoundVolume += custAdd;
+                        if(FlxG.save.data.hitSoundVolume < 0) FlxG.save.data.hitSoundVolume = 0;
+                        else if(FlxG.save.data.hitSoundVolume > 1) FlxG.save.data.hitSoundVolume = 1;
 				}
 				reloadValues();
 
@@ -796,6 +804,8 @@ class PreferencesSubstate extends MusicBeatSubstate
 				daText = "If checked, hides Opponent's notes and your notes get centered.";
 			case 'Note Splashes':
 				daText = "If unchecked, hitting \"Sick!\" notes won't show particles.";
+			case 'Hit Sound Volume':
+				daText = 'Funny notes does \"Tick!\" when you hit them."';
 
 		}
 		descText.text = daText;
@@ -939,6 +949,8 @@ class PreferencesSubstate extends MusicBeatSubstate
 								howToDisplay = "VCR OSD";
 						}
 						daText = howToDisplay;
+					case 'Hit Sound Volume':
+						daText = FlxG.save.data.hitSoundVolume;
 				}
 				var lastTracker:FlxSprite = text.sprTracker;
 				text.sprTracker = null;
