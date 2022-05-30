@@ -3398,280 +3398,269 @@ class PlayState extends MusicBeatState
 
 
 	public function NearlyEquals(value1:Float, value2:Float, unimportantDifference:Float = 10):Bool
+	{
+		return Math.abs(FlxMath.roundDecimal(value1, 1) - FlxMath.roundDecimal(value2, 1)) < unimportantDifference;
+	}
+
+	var upHold:Bool = false;
+	var downHold:Bool = false;
+	var rightHold:Bool = false;
+	var leftHold:Bool = false;	
+
+	private function keyShit():Void // I've invested in emma stocks
 		{
-			return Math.abs(FlxMath.roundDecimal(value1, 1) - FlxMath.roundDecimal(value2, 1)) < unimportantDifference;
-		}
-
-		var upHold:Bool = false;
-		var downHold:Bool = false;
-		var rightHold:Bool = false;
-		var leftHold:Bool = false;	
-
-		private function keyShit():Void // I've invested in emma stocks
+			// control arrays, order L D R U
+			var holdArray:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
+			var pressArray:Array<Bool> = [
+				controls.LEFT_P,
+				controls.DOWN_P,
+				controls.UP_P,
+				controls.RIGHT_P
+			];
+			var releaseArray:Array<Bool> = [
+				controls.LEFT_R,
+				controls.DOWN_R,
+				controls.UP_R,
+				controls.RIGHT_R
+			];
+	 
+			// Prevent player input if botplay is on
+			if(PlayStateChangeables.botPlay)
 			{
-				// control arrays, order L D R U
-				var holdArray:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-				var pressArray:Array<Bool> = [
-					controls.LEFT_P,
-					controls.DOWN_P,
-					controls.UP_P,
-					controls.RIGHT_P
-				];
-				var releaseArray:Array<Bool> = [
-					controls.LEFT_R,
-					controls.DOWN_R,
-					controls.UP_R,
-					controls.RIGHT_R
-				];
-		 
-				// Prevent player input if botplay is on
-				if(PlayStateChangeables.botPlay)
+				holdArray = [false, false, false, false];
+				pressArray = [false, false, false, false];
+				releaseArray = [false, false, false, false];
+			} 
+			// HOLDS, check for sustain notes
+			if (holdArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic)
+			{
+				notes.forEachAlive(function(daNote:Note)
 				{
-					holdArray = [false, false, false, false];
-					pressArray = [false, false, false, false];
-					releaseArray = [false, false, false, false];
-				} 
-				// HOLDS, check for sustain notes
-				if (holdArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic)
-				{
-					notes.forEachAlive(function(daNote:Note)
-					{
-						if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
-							goodNoteHit(daNote);
-					});
-				}
-		 
-				// PRESSES, check for note hits
-				if (pressArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic)
-				{
-					boyfriend.holdTimer = 0;
-		 
-					var possibleNotes:Array<Note> = []; // notes that can be hit
-					var pressedNotes:Array<Note> = [];
-					var directionList:Array<Int> = []; // directions that can be hit
-					var dumbNotes:Array<Note> = []; // notes to kill later
-					var directionsAccounted:Array<Bool> = [false,false,false,false]; // we don't want to do judgments for more than one presses
-					
-					notes.forEachAlive(function(daNote:Note)
-					{
-						if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit)
-						{
-							if (!directionsAccounted[daNote.noteData])
-							{
-								if (directionList.contains(daNote.noteData))
-								{
-									directionsAccounted[daNote.noteData] = true;
-									for (coolNote in possibleNotes)
-									{
-										if (coolNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - coolNote.strumTime) < 10)
-										{ // if it's the same note twice at < 10ms distance, just delete it
-											// EXCEPT u cant delete it in this loop cuz it fucks with the collection lol
-											dumbNotes.push(daNote);
-											break;
-										}
-										else if (coolNote.noteData == daNote.noteData && daNote.strumTime < coolNote.strumTime)
-										{ // if daNote is earlier than existing note (coolNote), replace
-											possibleNotes.remove(coolNote);
-											possibleNotes.push(daNote);
-											break;
-										}
-									}
-								}
-								else
-								{
-									possibleNotes.push(daNote);
-									directionList.push(daNote.noteData);
-								}
-							}
-						}
-					});
-
-					for (note in dumbNotes)
-					{
-						FlxG.log.add("killing dumb ass note at " + note.strumTime);
-						note.kill();
-						notes.remove(note, true);
-						note.destroy();
-					}
-		 
-					possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
-		 
-					var dontCheck = false;
-
-					for (i in 0...pressArray.length)
-					{
-						if (pressArray[i] && !directionList.contains(i))
-							dontCheck = true;
-					}
-
-					if (perfectMode)
-						goodNoteHit(possibleNotes[0]);
-					else if (possibleNotes.length > 0 && !dontCheck)
-					{
-						if (!FlxG.save.data.ghost)
-						{
-							for (shit in 0...pressArray.length)
-								{ // if a direction is hit that shouldn't be
-									if (pressArray[shit] && !directionList.contains(shit))
-										noteMiss(shit, null);
-								}
-						}
-						for (coolNote in possibleNotes)
-						{
-							if (pressArray[coolNote.noteData])
-							{
-								if (mashViolations != 0)
-									mashViolations--;
-								scoreTxt.color = FlxColor.WHITE;
-								goodNoteHit(coolNote);
-							}
-						}
-					}
-					else if (!FlxG.save.data.ghost)
-					{
-						for (shit in 0...pressArray.length)
-							if (pressArray[shit])
-								noteMiss(shit, null);
-					}
-
-					if(dontCheck && possibleNotes.length > 0 && FlxG.save.data.ghost && !PlayStateChangeables.botPlay)
-					{
-						if (mashViolations > 8)
-						{
-							trace('mash violations ' + mashViolations);
-							scoreTxt.color = FlxColor.RED;
-							noteMiss(0,null);
-						}
-						else
-							mashViolations++;
-					}
-
-				}
+					if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && holdArray[daNote.noteData])
+						goodNoteHit(daNote);
+				});
+			}
+	 
+			// PRESSES, check for note hits
+			if (pressArray.contains(true) && /*!boyfriend.stunned && */ generatedMusic)
+			{
+				boyfriend.holdTimer = 0;
+	 
+				var possibleNotes:Array<Note> = []; // notes that can be hit
+				var pressedNotes:Array<Note> = [];
+				var directionList:Array<Int> = []; // directions that can be hit
+				var dumbNotes:Array<Note> = []; // notes to kill later
+				var directionsAccounted:Array<Bool> = [false,false,false,false]; // we don't want to do judgments for more than one presses
 				
 				notes.forEachAlive(function(daNote:Note)
 				{
-					if(PlayStateChangeables.useDownscroll && daNote.y > strumLine.y ||
-					!PlayStateChangeables.useDownscroll && daNote.y < strumLine.y)
+					if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit)
 					{
-						// Force good note hit regardless if it's too late to hit it or not as a fail safe
-						if(PlayStateChangeables.botPlay && daNote.canBeHit && daNote.mustPress ||
-						PlayStateChangeables.botPlay && daNote.tooLate && daNote.mustPress)
+						if (!directionsAccounted[daNote.noteData])
 						{
-							goodNoteHit(daNote);
-							boyfriend.holdTimer = daNote.sustainLength;
+							if (directionList.contains(daNote.noteData))
+							{
+								directionsAccounted[daNote.noteData] = true;
+								for (coolNote in possibleNotes)
+								{
+									if (coolNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - coolNote.strumTime) < 10)
+									{ // if it's the same note twice at < 10ms distance, just delete it
+										// EXCEPT u cant delete it in this loop cuz it fucks with the collection lol
+										dumbNotes.push(daNote);
+										break;
+									}
+									else if (coolNote.noteData == daNote.noteData && daNote.strumTime < coolNote.strumTime)
+									{ // if daNote is earlier than existing note (coolNote), replace
+										possibleNotes.remove(coolNote);
+										possibleNotes.push(daNote);
+										break;
+									}
+								}
+							}
+							else
+							{
+								possibleNotes.push(daNote);
+								directionList.push(daNote.noteData);
+							}
 						}
 					}
 				});
-				
-				if (boyfriend.holdTimer > Conductor.stepCrochet * 4 * 0.001 && (!holdArray.contains(true) || PlayStateChangeables.botPlay))
+				for (note in dumbNotes)
 				{
-					if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
-						boyfriend.playAnim('idle');
+					FlxG.log.add("killing dumb ass note at " + note.strumTime);
+					note.kill();
+					notes.remove(note, true);
+					note.destroy();
 				}
-		 
-				playerStrums.forEach(function(spr:FlxSprite)
+	 
+				possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+	 
+				var dontCheck = false;
+				for (i in 0...pressArray.length)
 				{
-					if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm')
-						spr.animation.play('pressed');
-					if (!holdArray[spr.ID])
-						spr.animation.play('static');
-		 
-					if (spr.animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
+					if (pressArray[i] && !directionList.contains(i))
+						dontCheck = true;
+				}
+				if (perfectMode)
+					goodNoteHit(possibleNotes[0]);
+				else if (possibleNotes.length > 0 && !dontCheck)
+				{
+					if (!FlxG.save.data.ghost)
 					{
-						spr.centerOffsets();
-						spr.offset.x -= 13;
-						spr.offset.y -= 13;
+						for (shit in 0...pressArray.length)
+							{ // if a direction is hit that shouldn't be
+								if (pressArray[shit] && !directionList.contains(shit))
+									noteMiss(shit, null);
+							}
+					}
+					for (coolNote in possibleNotes)
+					{
+						if (pressArray[coolNote.noteData])
+						{
+							if (mashViolations != 0)
+								mashViolations--;
+							scoreTxt.color = FlxColor.WHITE;
+							goodNoteHit(coolNote);
+						}
+					}
+				}
+				else if (!FlxG.save.data.ghost)
+				{
+					for (shit in 0...pressArray.length)
+						if (pressArray[shit])
+							noteMiss(shit, null);
+				}
+				if(dontCheck && possibleNotes.length > 0 && FlxG.save.data.ghost && !PlayStateChangeables.botPlay)
+				{
+					if (mashViolations > 8)
+					{
+						trace('mash violations ' + mashViolations);
+						scoreTxt.color = FlxColor.RED;
+						noteMiss(0,null);
 					}
 					else
-						spr.centerOffsets();
-				});
+						mashViolations++;
+				}
 			}
-
-			public var fuckingVolume:Float = 1;
-			public var useVideo = false;
-
-			#if cpp
-			public static var webmHandler:WebmHandler;
-			#end
-
-			public var playingDathing = false;
-
-			public var videoSprite:FlxSprite;
-
-			public function focusOut() {
-				if (paused)
-					return;
-				persistentUpdate = false;
-				persistentDraw = true;
-				paused = true;
-		
-					if (FlxG.sound.music != null)
-					{
-						FlxG.sound.music.pause();
-						vocals.pause();
-					}
-		
-				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
-			}
-			public function focusIn() 
-			{ 
-				// nada 
-			}
-
-
-			#if cpp
-			public function backgroundVideo(source:String) // for background videos
+			
+			notes.forEachAlive(function(daNote:Note)
 			{
-				useVideo = true;
-		
-				FlxG.stage.window.onFocusOut.add(focusOut);
-				FlxG.stage.window.onFocusIn.add(focusIn);
-				var ourSource:String = "assets/videos/daWeirdVid/dontDelete.webm";
-				// WebmPlayer.SKIP_STEP_LIMIT = 90;
-				var str1:String = "WEBM SHIT"; 
-				webmHandler = new WebmHandler();
-				webmHandler.source(ourSource);
-				webmHandler.makePlayer();
-				webmHandler.webm.name = str1;
-		
-				GlobalVideo.setWebm(webmHandler);
-				GlobalVideo.get().source(source);
-				GlobalVideo.get().clearPause();
-				if (GlobalVideo.isWebm)
+				if(PlayStateChangeables.useDownscroll && daNote.y > strumLine.y ||
+				!PlayStateChangeables.useDownscroll && daNote.y < strumLine.y)
 				{
-					GlobalVideo.get().updatePlayer();
+					// Force good note hit regardless if it's too late to hit it or not as a fail safe
+					if(PlayStateChangeables.botPlay && daNote.canBeHit && daNote.mustPress ||
+					PlayStateChangeables.botPlay && daNote.tooLate && daNote.mustPress)
+					{
+						goodNoteHit(daNote);
+						boyfriend.holdTimer = daNote.sustainLength;
+					}
 				}
-				GlobalVideo.get().show();
-		
-				if (GlobalVideo.isWebm)
-				{
-					GlobalVideo.get().restart();
-				} else {
-					GlobalVideo.get().play();
-				}
-				
-				var data = webmHandler.webm.bitmapData;
-		
-				videoSprite = new FlxSprite(-470,-30).loadGraphic(data);
-		
-				videoSprite.setGraphicSize(Std.int(videoSprite.width * 1.2));
-		
-				remove(gf);
-				remove(boyfriend);
-				remove(dad);
-				add(videoSprite);
-				add(gf);
-				add(boyfriend);
-				add(dad);
-		
-				trace('poggers');
-		
-				if (!songStarted)
-					webmHandler.pause();
-				else
-					webmHandler.resume();
+			});
+			
+			if (boyfriend.holdTimer > Conductor.stepCrochet * 4 * 0.001 && (!holdArray.contains(true) || PlayStateChangeables.botPlay))
+			{
+				if (boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
+					boyfriend.playAnim('idle');
 			}
-			#end
+	 
+			playerStrums.forEach(function(spr:FlxSprite)
+			{
+				if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm')
+					spr.animation.play('pressed');
+				if (!holdArray[spr.ID])
+					spr.animation.play('static');
+	 
+				if (spr.animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
+				{
+					spr.centerOffsets();
+					spr.offset.x -= 13;
+					spr.offset.y -= 13;
+				}
+				else
+					spr.centerOffsets();
+			});
+		}
+
+	public var fuckingVolume:Float = 1;
+	public var useVideo = false;
+	#if cpp
+	public static var webmHandler:WebmHandler;
+	#end
+	public var playingDathing = false;
+	public var videoSprite:FlxSprite;
+	public function focusOut() {
+		if (paused)
+			return;
+		persistentUpdate = false;
+		persistentDraw = true;
+		paused = true;
+
+			if (FlxG.sound.music != null)
+			{
+				FlxG.sound.music.pause();
+				vocals.pause();
+			}
+
+		openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+	}
+	public function focusIn() 
+	{ 
+		// nada 
+	}
+	#if cpp
+	public function backgroundVideo(source:String) // for background videos
+	{
+		useVideo = true;
+
+		FlxG.stage.window.onFocusOut.add(focusOut);
+		FlxG.stage.window.onFocusIn.add(focusIn);
+		var ourSource:String = "assets/videos/daWeirdVid/dontDelete.webm";
+		// WebmPlayer.SKIP_STEP_LIMIT = 90;
+		var str1:String = "WEBM SHIT"; 
+		webmHandler = new WebmHandler();
+		webmHandler.source(ourSource);
+		webmHandler.makePlayer();
+		webmHandler.webm.name = str1;
+
+		GlobalVideo.setWebm(webmHandler);
+		GlobalVideo.get().source(source);
+		GlobalVideo.get().clearPause();
+		if (GlobalVideo.isWebm)
+		{
+			GlobalVideo.get().updatePlayer();
+		}
+		GlobalVideo.get().show();
+
+		if (GlobalVideo.isWebm)
+		{
+			GlobalVideo.get().restart();
+		} else {
+			GlobalVideo.get().play();
+		}
+		
+		var data = webmHandler.webm.bitmapData;
+
+		videoSprite = new FlxSprite(-470,-30).loadGraphic(data);
+
+		videoSprite.setGraphicSize(Std.int(videoSprite.width * 1.2));
+
+		remove(gf);
+		remove(boyfriend);
+		remove(dad);
+		add(videoSprite);
+		add(gf);
+		add(boyfriend);
+		add(dad);
+
+		trace('poggers');
+
+		if (!songStarted)
+			webmHandler.pause();
+		else
+			webmHandler.resume();
+	}
+	#end
 
 	function noteMiss(direction:Int = 1, daNote:Note):Void
 	{
@@ -3862,15 +3851,7 @@ class PlayState extends MusicBeatState
 					if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
 						time += 0.15;
 					}
-					StrumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4, time);
-				} else {
-					playerStrums.forEach(function(spr:StrumNote)
-					{
-						if (Math.abs(note.noteData) == spr.ID)
-						{
-							spr.playAnim('confirm', true);
-						}
-					});
+					StrumPlayAnim(false, Std.int(Math.abs(note.noteData)), time);
 				}
 				
 				note.wasGoodHit = true;
@@ -3930,7 +3911,7 @@ class PlayState extends MusicBeatState
 			time += 0.15;
 		}
 		if(FlxG.save.data.cpuStrums) {
-			StrumPlayAnim(true, Std.int(Math.abs(note.noteData)) % 4, time);
+			StrumPlayAnim(true, Std.int(Math.abs(note.noteData)), time);
 		}
 		note.hitByOpponent = true;
 
