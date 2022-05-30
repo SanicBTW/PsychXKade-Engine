@@ -3852,6 +3852,14 @@ class PlayState extends MusicBeatState
 						time += 0.15;
 					}
 					StrumPlayAnim(false, Std.int(Math.abs(note.noteData)), time);
+				} else {
+					playerStrums.forEach(function(spr:StrumNote)
+						{
+							if (Math.abs(note.noteData) == spr.ID)
+							{
+								spr.playAnim('confirm', true);
+							}
+						});
 				}
 				
 				note.wasGoodHit = true;
